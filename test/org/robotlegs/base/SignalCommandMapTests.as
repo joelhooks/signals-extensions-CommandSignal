@@ -1,10 +1,12 @@
-package org.osflash.signals
+package org.robotlegs.base
 {
     import asunit.asserts.*;
 
-    import org.osflash.signals.test.support.*;
+    import org.robotlegs.test.support.*;
     import org.robotlegs.adapters.SwiftSuspendersInjector;
+    import org.robotlegs.base.SignalCommandMap;
     import org.robotlegs.core.IInjector;
+    import org.robotlegs.core.ISignalCommandMap;
 
     public class SignalCommandMapTests
     {
@@ -42,7 +44,7 @@ package org.osflash.signals
 			assertTrue( signalCommandMap.hasSignalCommand( onePropSignal, TestNoPropertiesCommand ) )
 		}
 
-		[Test(expects="Error")]
+		[Test(expects="org.robotlegs.base.ContextError")]
 		public function mapping_object_with_no_execute_throws_error():void
 		{
 			signalCommandMap.mapSignal( onePropSignal, TestNoExecuteCommand );
@@ -118,35 +120,5 @@ package org.osflash.signals
 
             assertFalse( prop.wasExecuted );
         }
-/*
-
-        [Test]
-        public function test_multiple_commands_are_executed_on_dispatch():void
-        {
-            var propOne:TestCommandProperty = new TestCommandProperty( );
-            var propTwo:TestCommandProperty = new TestCommandProperty( );
-            signalCommandMap.mapSignal( onePropSignal, TestOnePropertyCommand );
-            signalCommandMap.mapSignal( onePropSignal, TestTwoPropertyCommand );
-            SignalCommandMap( signalCommandMap ).dispatch( propOne, propTwo );
-
-            assertTrue( propOne.wasExecuted && propTwo.wasExecuted )
-        }
-*/
-
-/*
-        [Test]
-        public function mapped_injections_are_supplied_to_executed_command():void
-        {
-            var propOne:TestCommandProperty = new TestCommandProperty( );
-            var propTwo:TestCommandProperty = new TestCommandProperty( );
-            var injectedProp:TestInjectedProperty = new TestInjectedProperty( );
-            SignalCommandMap( signalCommandMap ).injector = injector;
-            injector.mapValue( TestInjectedProperty, injectedProp );
-            signalCommandMap.mapSignal( onePropSignal, TestThreePropertyCommand );
-            SignalCommandMap( signalCommandMap ).dispatch( propOne, propTwo );
-
-            assertTrue( propOne.wasExecuted && propTwo.wasExecuted && injectedProp.wasExecuted )
-        }
-*/
     }
 }

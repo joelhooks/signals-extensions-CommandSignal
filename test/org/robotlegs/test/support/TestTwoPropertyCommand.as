@@ -1,4 +1,4 @@
-package org.osflash.signals.test.support
+package org.robotlegs.test.support
 {
     public class TestTwoPropertyCommand
     {

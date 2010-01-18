@@ -1,4 +1,4 @@
-package org.osflash.signals
+package org.robotlegs.core
 {
 	import org.osflash.signals.ISignal;
 	
