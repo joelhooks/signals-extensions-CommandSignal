@@ -1,9 +1,13 @@
 package org.osflash.signals.test.support
 {
-    public class TestOnePropertyCommand
+    public class TestOnePropertyConstructorCommand
     {
-		[Inject]
         public var prop:TestCommandProperty;
+		
+		public function TestOnePropertyConstructorCommand(prop:TestCommandProperty)
+		{
+			this.prop = prop;
+		}
 
         public function execute():void
         {

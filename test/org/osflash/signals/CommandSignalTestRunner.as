@@ -7,7 +7,7 @@ package org.osflash.signals
     {
         public function CommandSignalTestRunner()
         {
-            run(CommandSignalTests)
+            run(SignalCommandMapTests);
         }
     }
 }

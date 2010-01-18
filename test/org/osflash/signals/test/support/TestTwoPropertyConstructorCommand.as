@@ -1,12 +1,15 @@
 package org.osflash.signals.test.support
 {
-    public class TestTwoPropertyCommand
+    public class TestTwoPropertyConstructorCommand
     {
-		[Inject]
         public var propOne:TestCommandProperty;
-		
-		[Inject]
         public var propTwo:TestCommandProperty2;
+		
+		public function TestTwoPropertyConstructorCommand(propOne:TestCommandProperty, propTwo:TestCommandProperty2)
+		{
+			this.propOne = propOne;
+			this.propTwo = propTwo;
+		}
 
         public function execute():void
         {
