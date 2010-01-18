@@ -1,31 +1,27 @@
 package org.osflash.signals
 {
     import flash.utils.Dictionary;
-
     import flash.utils.describeType;
-
     import flash.utils.getQualifiedClassName;
 
-    import org.osflash.signals.ISignal;
-    import org.osflash.signals.Signal;
     import org.robotlegs.core.IInjector;
 
-    public class CommandSignal extends Signal implements ICommandSignal
+    public class CommandSignal extends Signal implements ICommandSignal, IDispatcher
     {
         [Inject]
         public var injector:IInjector;
 
         protected var mappedCommands:Array;
-        protected var oneShotCommands:Array;
+        protected var oneShotCommands:Dictionary;
         protected var verifiedCommandClasses:Dictionary;
 
         public function CommandSignal(...valueClasses)
         {
+            super( );
             verifiedCommandClasses = new Dictionary( false );
+            oneShotCommands = new Dictionary( false );
             mappedCommands = [];
-            oneShotCommands = [];
-            listeners = [];
-            onceListeners = new Dictionary( );
+
             if ( !valueClasses ) return;
 
             _valueClasses = valueClasses.concat( );
@@ -40,24 +36,24 @@ package org.osflash.signals
             }
         }
 
-        public function mapCommand(commandClass:Class, oneShot:Boolean=false):void
+        public function mapCommand(commandClass:Class, oneShot:Boolean = false):void
         {
             verifyCommandClass( commandClass );
-            if ( hasMappedCommand( commandClass ) )
+            if ( hasCommand( commandClass ) )
                 return;
             mappedCommands[mappedCommands.length] = commandClass;
             if ( oneShot )
-                oneShotCommands[oneShotCommands.length] = commandClass;
+                oneShotCommands[commandClass] = commandClass;
         }
 
-        public function hasMappedCommand(commandClass:Class):Boolean
+        public function hasCommand(commandClass:Class):Boolean
         {
             return mappedCommands.lastIndexOf( commandClass ) > -1;
         }
 
-        public function removeMappedCommand(commandClass:Class):void
+        public function removeCommand(commandClass:Class):void
         {
-            if ( hasMappedCommand( commandClass ) )
+            if ( hasCommand( commandClass ) )
             {
                 var commandIndex:int = mappedCommands.lastIndexOf( commandClass );
                 mappedCommands.splice( commandIndex, 1 );
@@ -88,10 +84,10 @@ package org.osflash.signals
         {
             for each( var command:Class in executedCommands )
             {
-                if ( oneShotCommands.lastIndexOf( command ) )
+                if ( oneShotCommands[command] )
                 {
-                    oneShotCommands.splice( oneShotCommands.lastIndexOf( command ), 1 );
-                    removeMappedCommand( command );
+                    removeCommand( command );
+                    delete oneShotCommands[command];
                 }
             }
         }

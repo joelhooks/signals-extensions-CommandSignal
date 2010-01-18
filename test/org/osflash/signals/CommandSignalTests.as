@@ -2,9 +2,6 @@ package org.osflash.signals
 {
     import asunit.asserts.*;
 
-    import org.osflash.signals.CommandSignal;
-    import org.osflash.signals.CommandSignal;
-    import org.osflash.signals.ISignal;
     import org.osflash.signals.test.support.*;
     import org.robotlegs.adapters.SwiftSuspendersInjector;
     import org.robotlegs.core.IInjector;
@@ -19,7 +16,7 @@ package org.osflash.signals
         {
             injector = new SwiftSuspendersInjector( );
             commandSignal = new CommandSignal( );
-            CommandSignal(commandSignal).injector = injector;
+            CommandSignal( commandSignal ).injector = injector;
         }
 
         [After]
@@ -39,7 +36,7 @@ package org.osflash.signals
         public function mapping_command_created_mapped_command():void
         {
             commandSignal.mapCommand( TestNoPropertiesCommand );
-            assertTrue( commandSignal.hasMappedCommand( TestNoPropertiesCommand ) )
+            assertTrue( commandSignal.hasCommand( TestNoPropertiesCommand ) )
         }
 
         [Test(expects="Error")]
@@ -52,8 +49,8 @@ package org.osflash.signals
         public function removing_command_removes_command():void
         {
             commandSignal.mapCommand( TestNoPropertiesCommand );
-            commandSignal.removeMappedCommand( TestNoPropertiesCommand );
-            assertFalse( commandSignal.hasMappedCommand( TestNoPropertiesCommand ) );
+            commandSignal.removeCommand( TestNoPropertiesCommand );
+            assertFalse( commandSignal.hasCommand( TestNoPropertiesCommand ) );
         }
 
         [Test]
@@ -78,14 +75,26 @@ package org.osflash.signals
         }
 
         [Test]
-        public function one_shot_command_only_executed_once():void
+        public function command_can_be_executed_multiple_time():void
         {
             var prop:TestCommandProperty = new TestCommandProperty( );
             commandSignal = new CommandSignal( TestCommandProperty );
             commandSignal.mapCommand( TestOnePropertyCommand );
-
+            CommandSignal( commandSignal ).dispatch( prop );
+            prop.wasExecuted = false;
             CommandSignal( commandSignal ).dispatch( prop );
             assertTrue( prop.wasExecuted )
+        }
+
+        [Test]
+        public function one_shot_command_only_executed_once():void
+        {
+            var prop:TestCommandProperty = new TestCommandProperty( );
+            commandSignal = new CommandSignal( TestCommandProperty );
+            commandSignal.mapCommand( TestOnePropertyCommand, true );
+
+            CommandSignal( commandSignal ).dispatch( prop );
+            assertTrue( prop.wasExecuted );
             prop.wasExecuted = false;
             CommandSignal( commandSignal ).dispatch( prop );
 
@@ -102,7 +111,7 @@ package org.osflash.signals
             commandSignal.mapCommand( TestTwoPropertyCommand );
             CommandSignal( commandSignal ).dispatch( propOne, propTwo );
 
-            assertTrue(propOne.wasExecuted && propTwo.wasExecuted)
+            assertTrue( propOne.wasExecuted && propTwo.wasExecuted )
         }
 
         [Test]
@@ -112,8 +121,8 @@ package org.osflash.signals
             var propTwo:TestCommandProperty = new TestCommandProperty( );
             var injectedProp:TestInjectedProperty = new TestInjectedProperty( );
             commandSignal = new CommandSignal( TestCommandProperty, TestCommandProperty );
-            CommandSignal(commandSignal).injector = injector;
-            injector.mapValue(TestInjectedProperty, injectedProp);
+            CommandSignal( commandSignal ).injector = injector;
+            injector.mapValue( TestInjectedProperty, injectedProp );
             commandSignal.mapCommand( TestThreePropertyCommand );
             CommandSignal( commandSignal ).dispatch( propOne, propTwo );
 
