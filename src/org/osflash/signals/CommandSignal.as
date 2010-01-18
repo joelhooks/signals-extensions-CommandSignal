@@ -11,7 +11,7 @@ package org.osflash.signals
         [Inject]
         public var injector:IInjector;
 
-        protected var mappedCommands:Array;
+        protected var mappedCommands:Dictionary;
         protected var oneShotCommands:Dictionary;
         protected var verifiedCommandClasses:Dictionary;
 
@@ -20,7 +20,7 @@ package org.osflash.signals
             super( );
             verifiedCommandClasses = new Dictionary( false );
             oneShotCommands = new Dictionary( false );
-            mappedCommands = [];
+            mappedCommands = new Dictionary( false );
 
             if ( !valueClasses ) return;
 
@@ -41,22 +41,21 @@ package org.osflash.signals
             verifyCommandClass( commandClass );
             if ( hasCommand( commandClass ) )
                 return;
-            mappedCommands[mappedCommands.length] = commandClass;
+            mappedCommands[commandClass] = commandClass;
             if ( oneShot )
                 oneShotCommands[commandClass] = commandClass;
         }
 
         public function hasCommand(commandClass:Class):Boolean
         {
-            return mappedCommands.lastIndexOf( commandClass ) > -1;
+            return mappedCommands[commandClass] != null;
         }
 
         public function removeCommand(commandClass:Class):void
         {
             if ( hasCommand( commandClass ) )
             {
-                var commandIndex:int = mappedCommands.lastIndexOf( commandClass );
-                mappedCommands.splice( commandIndex, 1 );
+                delete mappedCommands[commandClass];
                 delete verifiedCommandClasses[commandClass];
             }
         }
