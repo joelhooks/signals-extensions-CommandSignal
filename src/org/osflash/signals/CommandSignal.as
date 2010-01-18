@@ -96,7 +96,6 @@ package org.osflash.signals
             {
                 if ( variableTypeNameMap[propName] == valueFQCN )
                 {
-                    trace( propName );
                     commandInstance[propName] = value;
                     delete variableTypeNameMap[propName];
                     return;
@@ -111,7 +110,6 @@ package org.osflash.signals
             for each( var variable:XML in variableXML )
             {
                 variableTypeNameMap[variable.@name] = variable.@type;
-                trace( variableTypeNameMap[variable.@name] )
             }
             return variableTypeNameMap;
         }
