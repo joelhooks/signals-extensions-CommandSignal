@@ -17,23 +17,10 @@ package org.osflash.signals
 
         public function CommandSignal(...valueClasses)
         {
-            super( );
+            super( valueClasses );
             verifiedCommandClasses = new Dictionary( false );
             oneShotCommands = new Dictionary( false );
             mappedCommands = new Dictionary( false );
-
-            if ( !valueClasses ) return;
-
-            _valueClasses = valueClasses.concat( );
-            // loop backwards
-            for ( var i:int = _valueClasses.length; i--; )
-            {
-                if ( !(_valueClasses[i] is Class) )
-                {
-                    throw new ArgumentError( 'Invalid valueClasses argument: item at index ' + i
-                            + ' should be a Class but was:<' + _valueClasses[i] + '>.' );
-                }
-            }
         }
 
         public function mapCommand(commandClass:Class, oneShot:Boolean = false):void
