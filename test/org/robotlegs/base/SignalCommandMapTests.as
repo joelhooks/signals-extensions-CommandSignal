@@ -2,6 +2,7 @@ package org.robotlegs.base
 {
     import asunit.asserts.*;
 
+    import org.osflash.signals.ISignal;
     import org.robotlegs.test.support.*;
     import org.robotlegs.adapters.SwiftSuspendersInjector;
     import org.robotlegs.base.SignalCommandMap;
@@ -119,6 +120,23 @@ package org.robotlegs.base
             onePropSignal.dispatch( prop );
 
             assertFalse( prop.wasExecuted );
+        }
+
+        [Test]
+        public function mapping_signal_class_returns_instance():void
+        {
+            var signal:ISignal = signalCommandMap.mapSignalClass( TestCommandPropertySignal, TestNoPropertiesCommand );
+
+            assertTrue(signal is ISignal);
+        }
+
+        [Test]
+        public function signal_mapped_as_class_maps_signal_instance_with_injector():void
+        {
+            var signal:ISignal = signalCommandMap.mapSignalClass( TestCommandPropertySignal, TestNoPropertiesCommand );
+            var signalTwo:ISignal = injector.instantiate(SignalInjecteeTestClass).signal
+
+            assertSame(signal, signalTwo);
         }
     }
 }

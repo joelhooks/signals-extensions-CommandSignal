@@ -37,6 +37,14 @@ package org.robotlegs.base
 			signal.add(callback);
         }
 
+        public function mapSignalClass(signalClass:Class, commandClass:Class, oneShot:Boolean = false):ISignal
+        {
+            var signal:ISignal = injector.instantiate(signalClass);
+            injector.mapValue(signalClass, signal);
+            mapSignal(signal, commandClass, oneShot);
+            return signal;
+        }
+
         public function hasSignalCommand(signal:ISignal, commandClass:Class):Boolean
         {
             var callbacksByCommandClass:Dictionary = signalMap[signal];
