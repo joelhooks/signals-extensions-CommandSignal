@@ -138,5 +138,14 @@ package org.robotlegs.base
 
             assertSame(signal, signalTwo);
         }
+
+        [Test]
+        public function mapping_signal_class_twice_returns_same_signal_instance():void
+        {
+            var signalOne:ISignal = signalCommandMap.mapSignalClass( TestCommandPropertySignal, TestNoPropertiesCommand );
+            var signalTwo:ISignal = signalCommandMap.mapSignalClass( TestCommandPropertySignal, TestOnePropertyCommand );
+
+            assertSame(signalOne, signalTwo);
+        }
     }
 }

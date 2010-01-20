@@ -3,6 +3,7 @@ package org.robotlegs.base
     import flash.utils.Dictionary;
 
     import org.osflash.signals.*;
+
     import flash.utils.Dictionary;
     import flash.utils.describeType;
 
@@ -13,12 +14,14 @@ package org.robotlegs.base
     {
         protected var injector:IInjector;
         protected var signalMap:Dictionary;
+        protected var signalClassMap:Dictionary;
         protected var verifiedCommandClasses:Dictionary;
 
         public function SignalCommandMap(injector:IInjector)
         {
-			this.injector = injector;
-            signalMap = new Dictionary(false);
+            this.injector = injector;
+            signalMap = new Dictionary( false );
+            signalClassMap = new Dictionary( false );
             verifiedCommandClasses = new Dictionary( false );
         }
 
@@ -27,28 +30,47 @@ package org.robotlegs.base
             verifyCommandClass( commandClass );
             if ( hasSignalCommand( signal, commandClass ) )
                 return;
-            var signalCommandMap:Dictionary = signalMap[signal] = signalMap[signal] || (signalMap[signal] = new Dictionary(false));
-			var callback:Function = function(a:*=null, b:*=null, c:*=null, d:*=null, e:*=null, f:*=null, g:*=null):void
-			{
-				routeSignalToCommand(signal, arguments, commandClass, oneShot);
-			};
+            var signalCommandMap:Dictionary = signalMap[signal] = signalMap[signal] || (signalMap[signal] = new Dictionary( false ));
+            var callback:Function = function(a:* = null, b:* = null, c:* = null, d:* = null, e:* = null, f:* = null, g:* = null):void
+            {
+                routeSignalToCommand( signal, arguments, commandClass, oneShot );
+            };
 
-		    signalCommandMap[commandClass] =  callback;	
-			signal.add(callback);
+            signalCommandMap[commandClass] = callback;
+            signal.add( callback );
         }
 
         public function mapSignalClass(signalClass:Class, commandClass:Class, oneShot:Boolean = false):ISignal
         {
-            var signal:ISignal = injector.instantiate(signalClass);
-            injector.mapValue(signalClass, signal);
-            mapSignal(signal, commandClass, oneShot);
+            var signal:ISignal = getSignalClassInstance( signalClass );
+            mapSignal( signal, commandClass, oneShot );
+            return signal;
+        }
+
+        private function getSignalClassInstance(signalClass:Class):ISignal
+        {
+            var signal:ISignal;
+            for each( signal in  signalClassMap )
+            {
+                if ( signal is signalClass )
+                    return signal;
+            }
+            return createSignalClassInstance(signalClass);
+        }
+
+        private function createSignalClassInstance(signalClass:Class):ISignal
+        {
+            var signal:ISignal;
+            signal = injector.instantiate( signalClass );
+            injector.mapValue( signalClass, signal );
+            signalClassMap[signalClass] = signal;
             return signal;
         }
 
         public function hasSignalCommand(signal:ISignal, commandClass:Class):Boolean
         {
             var callbacksByCommandClass:Dictionary = signalMap[signal];
-            if (callbacksByCommandClass == null) return false;
+            if ( callbacksByCommandClass == null ) return false;
             var callback:Function = callbacksByCommandClass[commandClass];
             return callback != null;
         }
@@ -56,36 +78,36 @@ package org.robotlegs.base
         public function unmapSignal(signal:ISignal, commandClass:Class):void
         {
             var callbacksByCommandClass:Dictionary = signalMap[signal];
-			if (callbacksByCommandClass == null) return;
+            if ( callbacksByCommandClass == null ) return;
             var callback:Function = callbacksByCommandClass[commandClass];
-			if (callback == null) return;
-			signal.remove( callbacksByCommandClass[commandClass] );
+            if ( callback == null ) return;
+            signal.remove( callbacksByCommandClass[commandClass] );
             delete callbacksByCommandClass[commandClass];
         }
 
         protected function routeSignalToCommand(signal:ISignal, valueObjects:Array, commandClass:Class, oneshot:Boolean):void
         {
-			var value:Object;
-			for each( value in valueObjects )
-			{
-				injector.mapValue( value.constructor, value );
-			}
+            var value:Object;
+            for each( value in valueObjects )
+            {
+                injector.mapValue( value.constructor, value );
+            }
 
-			var command:Object = injector.instantiate(commandClass);
+            var command:Object = injector.instantiate( commandClass );
 
-			for each( value in valueObjects )
-			{
-				injector.unmap( value.constructor );
-			}
-			
-			command.execute( );
-			
-            if (oneshot)
-			{
-				unmapSignal( signal, commandClass );
-			}
+            for each( value in valueObjects )
+            {
+                injector.unmap( value.constructor );
+            }
+
+            command.execute( );
+
+            if ( oneshot )
+            {
+                unmapSignal( signal, commandClass );
+            }
         }
-				
+
         protected function verifyCommandClass(commandClass:Class):void
         {
             if ( !verifiedCommandClasses[commandClass] )
@@ -93,7 +115,7 @@ package org.robotlegs.base
                 verifiedCommandClasses[commandClass] = describeType( commandClass ).factory.method.(@name == "execute").length() == 1;
                 if ( !verifiedCommandClasses[commandClass] )
                 {
-                    throw new ContextError(ContextError.E_COMMANDMAP_NOIMPL + ' - ' + commandClass);
+                    throw new ContextError( ContextError.E_COMMANDMAP_NOIMPL + ' - ' + commandClass );
                 }
             }
         }
