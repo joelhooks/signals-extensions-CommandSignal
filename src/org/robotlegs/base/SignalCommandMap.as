@@ -50,8 +50,7 @@ package org.robotlegs.base
             var callbacksByCommandClass:Dictionary = signalMap[signal];
             if (callbacksByCommandClass == null) return false;
             var callback:Function = callbacksByCommandClass[commandClass];
-			if (callback == null) return false;
-            return true;
+            return callback != null;
         }
 
         public function unmapSignal(signal:ISignal, commandClass:Class):void
