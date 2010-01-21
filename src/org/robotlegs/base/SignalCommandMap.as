@@ -74,7 +74,7 @@ package org.robotlegs.base
             if ( callbacksByCommandClass == null ) return;
             var callback:Function = callbacksByCommandClass[commandClass];
             if ( callback == null ) return;
-            signal.remove( callbacksByCommandClass[commandClass] );
+            signal.remove( callback );
             delete callbacksByCommandClass[commandClass];
         }
 		
@@ -85,6 +85,8 @@ package org.robotlegs.base
 
         protected function routeSignalToCommand(signal:ISignal, valueObjects:Array, commandClass:Class, oneshot:Boolean):void
         {
+			// NOTE: Assumes no duplicated classes in valueObjects,
+			// and none of them are previously mapped.
             var value:Object;
             for each( value in valueObjects )
             {
@@ -108,14 +110,12 @@ package org.robotlegs.base
 
         protected function verifyCommandClass(commandClass:Class):void
         {
-            if ( !verifiedCommandClasses[commandClass] )
-            {
-                verifiedCommandClasses[commandClass] = describeType( commandClass ).factory.method.(@name == "execute").length() == 1;
-                if ( !verifiedCommandClasses[commandClass] )
-                {
-                    throw new ContextError( ContextError.E_COMMANDMAP_NOIMPL + ' - ' + commandClass );
-                }
-            }
+            if ( verifiedCommandClasses[commandClass] ) return;
+			if (describeType( commandClass ).factory.method.(@name == "execute").length() != 1)
+			{
+				throw new ContextError( ContextError.E_COMMANDMAP_NOIMPL + ' - ' + commandClass );
+			}
+			verifiedCommandClasses[commandClass] = true;
         }
     }
 }
