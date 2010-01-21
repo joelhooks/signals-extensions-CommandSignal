@@ -154,5 +154,13 @@ package org.robotlegs.base
             var signal:ISignal = signalCommandMap.mapSignalClass( TestCommandPropertySignal, TestNoPropertiesCommand );
 			assertTrue( signalCommandMap.hasSignalCommand( signal, TestNoPropertiesCommand ) );
 		}
+		
+		[Test]
+		public function unmap_signal_class_removes_command_mapping():void
+		{
+            var signal:ISignal = signalCommandMap.mapSignalClass( TestCommandPropertySignal, TestNoPropertiesCommand );
+            signalCommandMap.unmapSignalClass( TestCommandPropertySignal, TestNoPropertiesCommand );
+			assertFalse( signalCommandMap.hasSignalCommand( signal, TestNoPropertiesCommand ) );
+		}
     }
 }
