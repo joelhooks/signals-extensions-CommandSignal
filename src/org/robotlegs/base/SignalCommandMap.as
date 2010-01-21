@@ -30,7 +30,7 @@ package org.robotlegs.base
             verifyCommandClass( commandClass );
             if ( hasSignalCommand( signal, commandClass ) )
                 return;
-            var signalCommandMap:Dictionary = signalMap[signal] = signalMap[signal] || (signalMap[signal] = new Dictionary( false ));
+            var signalCommandMap:Dictionary = signalMap[signal] = signalMap[signal] || new Dictionary( false );
             var callback:Function = function(a:* = null, b:* = null, c:* = null, d:* = null, e:* = null, f:* = null, g:* = null):void
             {
                 routeSignalToCommand( signal, arguments, commandClass, oneShot );
@@ -54,8 +54,7 @@ package org.robotlegs.base
 
         private function createSignalClassInstance(signalClass:Class):ISignal
         {
-            var signal:ISignal;
-            signal = injector.instantiate( signalClass );
+            var signal:ISignal = injector.instantiate( signalClass );
             injector.mapValue( signalClass, signal );
             signalClassMap[signalClass] = signal;
             return signal;
