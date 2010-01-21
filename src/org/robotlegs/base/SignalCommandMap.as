@@ -77,6 +77,11 @@ package org.robotlegs.base
             signal.remove( callbacksByCommandClass[commandClass] );
             delete callbacksByCommandClass[commandClass];
         }
+		
+        public function unmapSignalClass(signalClass:Class, commandClass:Class):void
+        {
+			unmapSignal(getSignalClassInstance(signalClass), commandClass);
+		}
 
         protected function routeSignalToCommand(signal:ISignal, valueObjects:Array, commandClass:Class, oneshot:Boolean):void
         {

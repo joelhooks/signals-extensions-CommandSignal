@@ -11,5 +11,7 @@ package org.robotlegs.core
         function hasSignalCommand(signal:ISignal, commandClass:Class):Boolean;
 
         function unmapSignal(signal:ISignal, commandClass:Class):void;
+		
+        function unmapSignalClass(signalClass:Class, commandClass:Class):void;
     }
 }
