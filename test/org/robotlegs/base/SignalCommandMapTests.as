@@ -39,20 +39,20 @@ package org.robotlegs.base
 		}
 
 		[Test]
-		public function mapping_command_created_mapped_command():void
+		public function mapping_signal_creates_command_mapping():void
 		{
 			signalCommandMap.mapSignal( onePropSignal, TestNoPropertiesCommand );
 			assertTrue( signalCommandMap.hasSignalCommand( onePropSignal, TestNoPropertiesCommand ) )
 		}
 
 		[Test(expects="org.robotlegs.base.ContextError")]
-		public function mapping_object_with_no_execute_throws_error():void
+		public function mapping_class_with_no_execute_throws_error():void
 		{
 			signalCommandMap.mapSignal( onePropSignal, TestNoExecuteCommand );
 		}
 
 		[Test]
-		public function removing_command_removes_command():void
+		public function unmapping_signal_removes_command_mapping():void
 		{
 			signalCommandMap.mapSignal( onePropSignal, TestNoPropertiesCommand );
 			signalCommandMap.unmapSignal( onePropSignal, TestNoPropertiesCommand );
@@ -109,7 +109,7 @@ package org.robotlegs.base
 		}
 
         [Test]
-        public function one_shot_command_only_executed_once():void
+        public function one_shot_command_only_executes_once():void
         {
             var prop:TestCommandProperty = new TestCommandProperty( );
             signalCommandMap.mapSignal( onePropSignal, TestOnePropertyCommand, true );
