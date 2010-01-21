@@ -147,5 +147,12 @@ package org.robotlegs.base
 
             assertSame(signalOne, signalTwo);
         }
+		
+		[Test]
+		public function map_signal_class_creates_command_mapping():void
+		{
+            var signal:ISignal = signalCommandMap.mapSignalClass( TestCommandPropertySignal, TestNoPropertiesCommand );
+			assertTrue( signalCommandMap.hasSignalCommand( signal, TestNoPropertiesCommand ) );
+		}
     }
 }
