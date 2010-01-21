@@ -49,13 +49,7 @@ package org.robotlegs.base
 
         private function getSignalClassInstance(signalClass:Class):ISignal
         {
-            var signal:ISignal;
-            for each( signal in  signalClassMap )
-            {
-                if ( signal is signalClass )
-                    return signal;
-            }
-            return createSignalClassInstance(signalClass);
+            return ISignal(signalClassMap[signalClass]) || createSignalClassInstance(signalClass);
         }
 
         private function createSignalClassInstance(signalClass:Class):ISignal
