@@ -134,7 +134,7 @@ package org.robotlegs.base
         public function signal_mapped_as_class_maps_signal_instance_with_injector():void
         {
             var signal:ISignal = signalCommandMap.mapSignalClass( TestCommandPropertySignal, TestNoPropertiesCommand );
-            var signalTwo:ISignal = injector.instantiate(SignalInjecteeTestClass).signal
+            var signalTwo:ISignal = injector.instantiate(SignalInjecteeTestClass).signal;
 
             assertSame(signal, signalTwo);
         }
