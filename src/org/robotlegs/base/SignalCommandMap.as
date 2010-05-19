@@ -2,6 +2,10 @@ package org.robotlegs.base
 {
     import flash.utils.Dictionary;
 
+    import flash.utils.Proxy;
+    import flash.utils.getDefinitionByName;
+    import flash.utils.getQualifiedClassName;
+
     import org.osflash.signals.*;
 
     import flash.utils.Dictionary;
@@ -85,27 +89,43 @@ package org.robotlegs.base
 
         protected function routeSignalToCommand(signal:ISignal, valueObjects:Array, commandClass:Class, oneshot:Boolean):void
         {
-			// NOTE: Assumes no duplicated classes in valueObjects,
-			// and none of them are previously mapped.
-            var value:Object;
-            for each( value in valueObjects )
-            {
-                injector.mapValue( value.constructor, value );
-            }
-
-            var command:Object = injector.instantiate( commandClass );
-
-            for each( value in valueObjects )
-            {
-                injector.unmap( value.constructor );
-            }
-
-            command.execute( );
+            createCommandInstance(valueObjects, commandClass).execute();
 
             if ( oneshot )
-            {
                 unmapSignal( signal, commandClass );
+        }
+
+        protected function createCommandInstance(valueObjects:Array, commandClass:Class):Object
+        {
+            //TODO: Needs to be refactored for robotlegs 1.1 so that
+            //injection mappings are honored and not overwritten.
+            var value:Object;
+            var valueConstructor:Class;
+            var tempInjector:IInjector = injector.createChild();
+            for each(value in valueObjects)
+            {
+                valueConstructor = getConstructorForObject(value);
+                tempInjector.mapValue(valueConstructor, value);
             }
+
+            var command:Object = tempInjector.instantiate(commandClass);
+
+            return command;
+        }
+
+        protected function getConstructorForObject(object:Object):Class
+        {
+            var constructor:Class;
+            if(object is Proxy || object is XML)
+            {
+                var name:String = getQualifiedClassName(object);
+                constructor = Class(getDefinitionByName(name));
+            }
+            else
+            {
+                constructor = object.constructor;
+            }
+            return constructor;
         }
 
         protected function verifyCommandClass(commandClass:Class):void

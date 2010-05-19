@@ -7,6 +7,7 @@ package org.robotlegs.base
     import org.robotlegs.core.IInjector;
     import org.robotlegs.core.ISignalCommandMap;
     import org.robotlegs.test.support.*;
+    import org.robotlegs.test.support.TestXMLPropertySignal;
 
     public class SignalCommandMapTests
     {
@@ -160,6 +161,19 @@ package org.robotlegs.base
             var signal:ISignal = signalCommandMap.mapSignalClass(TestCommandPropertySignal, TestNoPropertiesCommand);
             signalCommandMap.unmapSignalClass(TestCommandPropertySignal, TestNoPropertiesCommand);
             assertFalse(signalCommandMap.hasSignalCommand(signal, TestNoPropertiesCommand));
+        }
+
+        [Test]
+        public function xml_signal_value_properly_injected_into_command():void
+        {
+            var prop:TestCommandProperty = new TestCommandProperty();
+            var xml:XML = <this></this>;
+            var signal:TestXMLPropertySignal = new TestXMLPropertySignal();
+            signalCommandMap.mapSignal(signal, TestXMLPropertyCommand);
+
+            signal.dispatch(xml,prop);
+
+            assertTrue(prop.wasExecuted);
         }
     }
 }
