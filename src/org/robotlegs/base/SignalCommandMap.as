@@ -97,8 +97,6 @@ package org.robotlegs.base
 
         protected function createCommandInstance(valueObjects:Array, commandClass:Class):Object
         {
-            //TODO: Needs to be refactored for robotlegs 1.1 so that
-            //injection mappings are honored and not overwritten.
             var value:Object;
             var valueConstructor:Class;
             var tempInjector:IInjector = injector.createChild();
