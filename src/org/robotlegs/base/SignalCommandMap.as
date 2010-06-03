@@ -106,9 +106,7 @@ package org.robotlegs.base
                 tempInjector.mapValue(valueConstructor, value);
             }
 
-            var command:Object = tempInjector.instantiate(commandClass);
-
-            return command;
+            return tempInjector.instantiate(commandClass);
         }
 
         protected function getConstructorForObject(object:Object):Class
