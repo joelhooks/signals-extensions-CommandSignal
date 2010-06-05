@@ -117,13 +117,21 @@ package org.robotlegs.base
                 var name:String = getQualifiedClassName(object);
                 constructor = Class(getDefinitionByName(name));
             }
+			else if (object is uint)
+			{
+				constructor = uint;
+			}
+			else if (object is int)
+			{
+				constructor = int;
+			}
             else
             {
                 constructor = object.constructor;
             }
             return constructor;
         }
-
+        
         protected function verifyCommandClass(commandClass:Class):void
         {
             if ( verifiedCommandClasses[commandClass] ) return;
