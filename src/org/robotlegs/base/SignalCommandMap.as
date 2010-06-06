@@ -1,16 +1,12 @@
 package org.robotlegs.base
 {
     import flash.utils.Dictionary;
-
     import flash.utils.Proxy;
+    import flash.utils.describeType;
     import flash.utils.getDefinitionByName;
     import flash.utils.getQualifiedClassName;
-
+    
     import org.osflash.signals.*;
-
-    import flash.utils.Dictionary;
-    import flash.utils.describeType;
-
     import org.robotlegs.core.IInjector;
     import org.robotlegs.core.ISignalCommandMap;
 
@@ -89,47 +85,20 @@ package org.robotlegs.base
 
         protected function routeSignalToCommand(signal:ISignal, valueObjects:Array, commandClass:Class, oneshot:Boolean):void
         {
-            createCommandInstance(valueObjects, commandClass).execute();
+            createCommandInstance(signal.valueClasses, valueObjects, commandClass).execute();
 
             if ( oneshot )
                 unmapSignal( signal, commandClass );
         }
 
-        protected function createCommandInstance(valueObjects:Array, commandClass:Class):Object
+        protected function createCommandInstance(valueClasses:Array, valueObjects:Array, commandClass:Class):Object
         {
-            var value:Object;
-            var valueConstructor:Class;
             var tempInjector:IInjector = injector.createChild();
-            for each(value in valueObjects)
-            {
-                valueConstructor = getConstructorForObject(value);
-                tempInjector.mapValue(valueConstructor, value);
-            }
-
+			for (var i:uint=0;i<valueClasses.length;i++)
+			{
+				tempInjector.mapValue(valueClasses[i], valueObjects[i]);				
+			}
             return tempInjector.instantiate(commandClass);
-        }
-
-        protected function getConstructorForObject(object:Object):Class
-        {
-            var constructor:Class;
-            if(object is Proxy || object is XML)
-            {
-                var name:String = getQualifiedClassName(object);
-                constructor = Class(getDefinitionByName(name));
-            }
-			else if (object is uint)
-			{
-				constructor = uint;
-			}
-			else if (object is int)
-			{
-				constructor = int;
-			}
-            else
-            {
-                constructor = object.constructor;
-            }
-            return constructor;
         }
         
         protected function verifyCommandClass(commandClass:Class):void
@@ -141,5 +110,6 @@ package org.robotlegs.base
 			}
 			verifiedCommandClasses[commandClass] = true;
         }
+		
     }
 }

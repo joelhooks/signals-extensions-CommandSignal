@@ -2,9 +2,8 @@ package org.robotlegs.base
 {
     import asunit.asserts.*;
 
-import mx.collections.ArrayCollection;
-
-import org.osflash.signals.ISignal;
+    import mx.collections.ArrayCollection;
+    import org.osflash.signals.ISignal;
     import org.robotlegs.adapters.SwiftSuspendersInjector;
     import org.robotlegs.core.IInjector;
     import org.robotlegs.core.ISignalCommandMap;
@@ -190,5 +189,32 @@ import org.osflash.signals.ISignal;
 
             assertTrue(prop.wasExecuted);
         }
+		
+		[Test]
+		public function uint_signal_value_properly_injected_into_command():void
+		{
+			var prop:TestCommandProperty = new TestCommandProperty();
+			var i:uint = 3;
+			var signal:TestUintPropertySignal = new TestUintPropertySignal();
+			signalCommandMap.mapSignal(signal, TestUintPropertyCommand);
+			
+			signal.dispatch(i,prop);
+			
+			assertTrue(prop.wasExecuted);
+		}
+		
+		[Test]
+		public function int_signal_value_properly_injected_into_command():void
+		{
+			var prop:TestCommandProperty = new TestCommandProperty();
+			var i:int = 3;
+			var signal:TestIntPropertySignal = new TestIntPropertySignal();
+			signalCommandMap.mapSignal(signal, TestIntPropertyCommand);
+			
+			signal.dispatch(i,prop);
+			
+			assertTrue(prop.wasExecuted);
+		}
+		
     }
 }
