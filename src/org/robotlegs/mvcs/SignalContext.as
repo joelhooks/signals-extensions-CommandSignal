@@ -16,7 +16,7 @@ package org.robotlegs.mvcs
 		
         public function get signalCommandMap():ISignalCommandMap
         {
-            return _signalCommandMap || (_signalCommandMap = new SignalCommandMap(injector));
+            return _signalCommandMap || (_signalCommandMap = new SignalCommandMap(injector.createChild()));
         }
 
         public function set signalCommandMap(value:ISignalCommandMap):void

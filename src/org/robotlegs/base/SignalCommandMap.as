@@ -54,8 +54,12 @@ package org.robotlegs.base
 
         private function createSignalClassInstance(signalClass:Class):ISignal
         {
-            var signal:ISignal = injector.instantiate( signalClass );
-            injector.mapValue( signalClass, signal );
+            var injectorForSignalInstance:IInjector = injector;
+            var signal:ISignal;
+            if(injector.hasMapping(IInjector))
+                injectorForSignalInstance = injector.getInstance(IInjector);
+            signal = injectorForSignalInstance.instantiate( signalClass );
+            injectorForSignalInstance.mapValue( signalClass, signal );
             signalClassMap[signalClass] = signal;
             return signal;
         }
@@ -93,12 +97,11 @@ package org.robotlegs.base
 
         protected function createCommandInstance(valueClasses:Array, valueObjects:Array, commandClass:Class):Object
         {
-            var tempInjector:IInjector = injector.createChild();
 			for (var i:uint=0;i<valueClasses.length;i++)
 			{
-				tempInjector.mapValue(valueClasses[i], valueObjects[i]);				
+				injector.mapValue(valueClasses[i], valueObjects[i]);
 			}
-            return tempInjector.instantiate(commandClass);
+            return injector.instantiate(commandClass);
         }
         
         protected function verifyCommandClass(commandClass:Class):void
