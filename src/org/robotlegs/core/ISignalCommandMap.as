@@ -13,7 +13,5 @@ package org.robotlegs.core
         function unmapSignal(signal:ISignal, commandClass:Class):void;
 		
         function unmapSignalClass(signalClass:Class, commandClass:Class):void;
-
-        function getCommandInstance(commandClass:Class):Object;
     }
 }

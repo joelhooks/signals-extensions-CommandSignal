@@ -87,12 +87,6 @@ package org.robotlegs.base
 			unmapSignal(getSignalClassInstance(signalClass), commandClass);
 		}
 
-        public function getCommandInstance(commandClass:Class):Object
-        {
-            verifyCommandClass(commandClass);
-            return injector.instantiate(commandClass);
-        }
-
         protected function routeSignalToCommand(signal:ISignal, valueObjects:Array, commandClass:Class, oneshot:Boolean):void
         {
             createCommandInstance(signal.valueClasses, valueObjects, commandClass).execute();

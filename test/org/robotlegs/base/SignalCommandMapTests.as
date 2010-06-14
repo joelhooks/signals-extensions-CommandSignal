@@ -215,19 +215,5 @@ package org.robotlegs.base
 			
 			assertTrue(prop.wasExecuted);
 		}
-
-        [Test]
-        public function getCommandInstance_returned_command_instance():void
-        {
-            var command:Object = signalCommandMap.getCommandInstance(TestNoPropertiesCommand);
-
-            assertTrue(command is TestNoPropertiesCommand);
-        }
-
-        [Test(expects="org.robotlegs.base.ContextError")]
-        public function getCommandInstance_with_no_execute_throws_error():void
-        {
-            signalCommandMap.getCommandInstance(TestNoExecuteCommand);
-        }
     }
 }
