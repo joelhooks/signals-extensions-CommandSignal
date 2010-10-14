@@ -1,16 +1,13 @@
 package org.robotlegs.base
 {
-    import flash.utils.Dictionary;
-    import flash.utils.Proxy;
-    import flash.utils.describeType;
-    import flash.utils.getDefinitionByName;
-    import flash.utils.getQualifiedClassName;
-    
-    import org.osflash.signals.*;
-    import org.robotlegs.core.IInjector;
-    import org.robotlegs.core.ISignalCommandMap;
+	import org.osflash.signals.ISignal;
+	import org.robotlegs.core.IInjector;
+	import org.robotlegs.core.ISignalCommandMap;
 
-    public class SignalCommandMap implements ISignalCommandMap
+	import flash.utils.Dictionary;
+	import flash.utils.describeType;
+
+	public class SignalCommandMap implements ISignalCommandMap
     {
         protected var injector:IInjector;
         protected var signalMap:Dictionary;
