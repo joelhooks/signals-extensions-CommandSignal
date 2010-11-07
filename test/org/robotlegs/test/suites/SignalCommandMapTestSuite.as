@@ -5,6 +5,7 @@ package org.robotlegs.test.suites
     import org.robotlegs.mvcs.SignalContextTests;
 
     [Suite]
+    [RunWith("org.flexunit.runners.Suite")]
     public class SignalCommandMapTestSuite
     {
         public var _signalContextTests:SignalContextTests;

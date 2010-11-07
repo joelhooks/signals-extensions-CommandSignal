@@ -1,10 +1,10 @@
 package org.robotlegs.test.support
 {
-import mx.collections.ArrayCollection;
+    import mx.collections.ArrayCollection;
 
-import org.osflash.signals.Signal;
+    import org.osflash.signals.Signal;
 
-public class TestArrayCollectionPropertySignal extends Signal
+    public class TestArrayCollectionPropertySignal extends Signal
 {
     public function TestArrayCollectionPropertySignal()
     {

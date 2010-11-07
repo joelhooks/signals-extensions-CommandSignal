@@ -1,14 +1,15 @@
 package org.robotlegs.base
 {
-    import asunit.asserts.*;
-
     import mx.collections.ArrayCollection;
+
+    import org.flexunit.asserts.assertEquals;
+    import org.flexunit.asserts.assertFalse;
+    import org.flexunit.asserts.assertTrue;
     import org.osflash.signals.ISignal;
     import org.robotlegs.adapters.SwiftSuspendersInjector;
     import org.robotlegs.core.IInjector;
     import org.robotlegs.core.ISignalCommandMap;
     import org.robotlegs.test.support.*;
-    import org.robotlegs.test.support.TestXMLPropertySignal;
 
     public class SignalCommandMapTests
     {
@@ -137,7 +138,7 @@ package org.robotlegs.base
             var signal:ISignal = signalCommandMap.mapSignalClass(TestCommandPropertySignal, TestNoPropertiesCommand);
             var signalTwo:ISignal = injector.instantiate(SignalInjecteeTestClass).signal;
 
-            assertSame(signal, signalTwo);
+            assertEquals(signal, signalTwo);
         }
 
         [Test]
@@ -146,7 +147,7 @@ package org.robotlegs.base
             var signalOne:ISignal = signalCommandMap.mapSignalClass(TestCommandPropertySignal, TestNoPropertiesCommand);
             var signalTwo:ISignal = signalCommandMap.mapSignalClass(TestCommandPropertySignal, TestOnePropertyCommand);
 
-            assertSame(signalOne, signalTwo);
+            assertEquals(signalOne, signalTwo);
         }
 
         [Test]
@@ -189,7 +190,7 @@ package org.robotlegs.base
 
             assertTrue(prop.wasExecuted);
         }
-		
+
 		[Test]
 		public function uint_signal_value_properly_injected_into_command():void
 		{
@@ -197,12 +198,12 @@ package org.robotlegs.base
 			var i:uint = 3;
 			var signal:TestUintPropertySignal = new TestUintPropertySignal();
 			signalCommandMap.mapSignal(signal, TestUintPropertyCommand);
-			
+
 			signal.dispatch(i,prop);
-			
+
 			assertTrue(prop.wasExecuted);
 		}
-		
+
 		[Test]
 		public function int_signal_value_properly_injected_into_command():void
 		{
@@ -210,9 +211,9 @@ package org.robotlegs.base
 			var i:int = 3;
 			var signal:TestIntPropertySignal = new TestIntPropertySignal();
 			signalCommandMap.mapSignal(signal, TestIntPropertyCommand);
-			
+
 			signal.dispatch(i,prop);
-			
+
 			assertTrue(prop.wasExecuted);
 		}
     }

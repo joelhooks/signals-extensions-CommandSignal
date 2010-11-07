@@ -1,8 +1,8 @@
 package org.robotlegs.test.support
 {
-	import org.osflash.signals.Signal;
-	
-	public class TestIntPropertySignal extends Signal
+    import org.osflash.signals.Signal;
+
+    public class TestIntPropertySignal extends Signal
 	{
 		public function TestIntPropertySignal()
 		{

@@ -1,7 +1,6 @@
 package org.robotlegs.mvcs
 {
-    import asunit.asserts.assertTrue;
-
+    import org.flexunit.asserts.assertTrue;
     import org.robotlegs.adapters.SwiftSuspendersInjector;
     import org.robotlegs.base.SignalCommandMap;
     import org.robotlegs.core.IInjector;
