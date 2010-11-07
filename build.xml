@@ -21,7 +21,7 @@
 			<arg value="-include-sources=${src.dir}/${package.dir}" />
 
 			<!-- Link in classes from swc library (only those used). -->
-			<arg value="-library-path+=${libs.dir}" />
+			<arg value="-library-path+=${lib.loc}" />
 
 			<arg value="-output=${output.swc}" />
 		</java>
