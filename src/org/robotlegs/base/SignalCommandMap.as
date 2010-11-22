@@ -1,13 +1,11 @@
 package org.robotlegs.base
 {
     import flash.utils.Dictionary;
-
-    import org.osflash.signals.*;
-
-    import flash.utils.Dictionary;
     import flash.utils.describeType;
-
+    
+    import org.osflash.signals.*;
     import org.robotlegs.core.IInjector;
+    import org.robotlegs.core.ISignalCommand;
     import org.robotlegs.core.ISignalCommandMap;
 
     public class SignalCommandMap implements ISignalCommandMap
@@ -16,6 +14,7 @@ package org.robotlegs.base
         protected var signalMap:Dictionary;
         protected var signalClassMap:Dictionary;
         protected var verifiedCommandClasses:Dictionary;
+		protected var detainedCommands:Dictionary;
 
         public function SignalCommandMap(injector:IInjector)
         {
@@ -23,6 +22,7 @@ package org.robotlegs.base
             signalMap = new Dictionary( false );
             signalClassMap = new Dictionary( false );
             verifiedCommandClasses = new Dictionary( false );
+			detainedCommands = new Dictionary(false);
         }
 
         public function mapSignal(signal:ISignal, commandClass:Class, oneShot:Boolean = false):void
@@ -117,5 +117,16 @@ package org.robotlegs.base
 			}
 			verifiedCommandClasses[commandClass] = true;
         }
+		
+		public function detain(command:ISignalCommand):void
+		{
+			detainedCommands[command] = true;
+		}
+		
+		public function release(command:ISignalCommand):void
+		{
+			if (detainedCommands[command])
+				delete detainedCommands[command];
+		}
     }
 }
