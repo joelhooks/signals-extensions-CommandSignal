@@ -6,7 +6,7 @@
 	<!-- Copy Flex SDK location from environment variable. This can be set manually instead. -->
 	<property name="FLEX_HOME" value="${env.FLEX_HOME}" />
 	<property file="build.properties"/>
-    <taskdef resource="flexUnitTasks.tasks" classpath="${lib.loc}/flexUnitTasks.jar"/>
+    <taskdef resource="flexUnitTasks.tasks" classpath="${lib.loc}/flexUnitTasks-4.1.0-RC1.x.jar"/>
 
 	<target name="compile" description="Compile AS3 code into a SWC">
 		<echo>Using Flex SDK at: ${FLEX_HOME}</echo>

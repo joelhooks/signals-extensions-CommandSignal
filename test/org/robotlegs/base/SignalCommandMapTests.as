@@ -2,9 +2,7 @@ package org.robotlegs.base
 {
     import mx.collections.ArrayCollection;
 
-    import org.flexunit.asserts.assertEquals;
-    import org.flexunit.asserts.assertFalse;
-    import org.flexunit.asserts.assertTrue;
+    import org.flexunit.asserts.*;
     import org.osflash.signals.ISignal;
     import org.robotlegs.adapters.SwiftSuspendersInjector;
     import org.robotlegs.core.IInjector;
