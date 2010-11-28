@@ -1,7 +1,7 @@
 package org.robotlegs.base
 {
     import mx.collections.ArrayCollection;
-
+    
     import org.flexunit.asserts.*;
     import org.osflash.signals.ISignal;
     import org.robotlegs.adapters.SwiftSuspendersInjector;
@@ -133,10 +133,10 @@ package org.robotlegs.base
         [Test]
         public function signal_mapped_as_class_maps_signal_instance_with_injector():void
         {
-            var signal:ISignal = signalCommandMap.mapSignalClass(TestCommandPropertySignal, TestNoPropertiesCommand);
-            var signalTwo:ISignal = injector.instantiate(SignalInjecteeTestClass).signal;
+            var signal:ISignal = signalCommandMap.mapSignalClass( TestCommandPropertySignal, TestNoPropertiesCommand );
+            var signalTwo:ISignal = injector.instantiate(SignalInjecteeTestClass).signal
 
-            assertEquals(signal, signalTwo);
+			assertEquals(signal, signalTwo);
         }
 
         [Test]
