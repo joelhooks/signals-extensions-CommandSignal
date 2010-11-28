@@ -4,8 +4,7 @@ package org.robotlegs.mvcs
     import flash.display.Sprite;
     import flash.events.Event;
 
-    import org.flexunit.asserts.assertEquals;
-    import org.flexunit.asserts.assertTrue;
+    import org.flexunit.asserts.*;
     import org.robotlegs.core.IInjector;
     import org.robotlegs.core.ISignalCommandMap;
     import org.robotlegs.core.ISignalContext;

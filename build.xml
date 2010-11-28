@@ -6,7 +6,7 @@
 	<!-- Copy Flex SDK location from environment variable. This can be set manually instead. -->
 	<property name="FLEX_HOME" value="${env.FLEX_HOME}" />
 	<property file="build.properties"/>
-    <taskdef resource="flexUnitTasks.tasks" classpath="${lib.loc}/flexUnitTasks.jar"/>
+    <taskdef resource="flexUnitTasks.tasks" classpath="${lib.loc}/flexUnitTasks-4.1.0-RC1.x.jar"/>
 
 	<target name="compile" description="Compile AS3 code into a SWC">
 		<echo>Using Flex SDK at: ${FLEX_HOME}</echo>
@@ -20,8 +20,8 @@
 			<!-- Include all classes in this path. -->
 			<arg value="-include-sources=${src.dir}/${package.dir}" />
 
-			<!-- Link in classes from swc library (only those used). -->
-			<arg value="-library-path+=${lib.loc}" />
+            <!-- Use classes from these SWCs, but exclude them from our SWC. -->
+            <arg value="-external-library-path+=${lib.loc}" />
 
 			<arg value="-output=${output.swc}" />
 		</java>
@@ -36,17 +36,20 @@
     <!-- Run Unit Tests -->
     <target name="test" depends="compile">
         <echo>[test] Running Unit Tests</echo>
-        <!-- Compile TestRunner.mxml as a SWF -->
+        <!-- Compile test runner as a SWF -->
         <java jar="${FLEX_HOME}/lib/mxmlc.jar" dir="${FLEX_HOME}/frameworks" fork="true" failonerror="true">
-            <arg value="${test.src.loc}/SignalCommandMapTest.mxml"/>
+            <arg value="${test.src.loc}/SignalCommandMapTest.as"/>
             <arg value="-source-path=${main.src.loc}"/>
             <!-- Flash those sweet legs. Blink and you'll miss 'em. -->
             <arg value="-output=${bin.loc}/TestRunner.swf"/>
             <arg value="-default-size=200,200"/>
             <arg value="-default-background-color=0x000000"/>
-            <!-- Include classes from SWCs in this folder, but only the ones we use. -->
+			<!-- Include external libraries omitted from our SWC. -->
             <arg value="-library-path+=${lib.loc}"/>
+            <!-- Build tests against our freshly-generated SWC. -->
+            <arg value="-library-path+=${output.swc}"/>
             <!-- So true. -->
+			<arg value="-static-link-runtime-shared-libraries=true"/>
             <arg value="-incremental=true"/>
             <arg value="-verbose-stacktraces=true"/>
             <arg value="-headless-server=true"/>
