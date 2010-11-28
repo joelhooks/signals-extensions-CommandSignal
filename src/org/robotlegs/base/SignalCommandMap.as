@@ -1,14 +1,14 @@
 package org.robotlegs.base
 {
-    import flash.utils.Dictionary;
-    import flash.utils.describeType;
-    
-    import org.osflash.signals.*;
-    import org.robotlegs.core.IInjector;
-    import org.robotlegs.core.ISignalCommand;
-    import org.robotlegs.core.ISignalCommandMap;
+	import flash.utils.Dictionary;
+	import flash.utils.describeType;
+	
+	import org.osflash.signals.ISignal;
+	import org.robotlegs.core.IInjector;
+	import org.robotlegs.core.ISignalCommand;
+	import org.robotlegs.core.ISignalCommandMap;
 
-    public class SignalCommandMap implements ISignalCommandMap
+	public class SignalCommandMap implements ISignalCommandMap
     {
         protected var injector:IInjector;
         protected var signalMap:Dictionary;
@@ -30,7 +30,7 @@ package org.robotlegs.base
             verifyCommandClass( commandClass );
             if ( hasSignalCommand( signal, commandClass ) )
                 return;
-            var signalCommandMap:Dictionary = signalMap[signal] = signalMap[signal] || new Dictionary( false );
+            var signalCommandMap:Dictionary = signalMap[signal] ||= new Dictionary( false );
             var callback:Function = function(a:* = null, b:* = null, c:* = null, d:* = null, e:* = null, f:* = null, g:* = null):void
             {
                 routeSignalToCommand( signal, arguments, commandClass, oneShot );
@@ -56,6 +56,12 @@ package org.robotlegs.base
         {
             var signal:ISignal = injector.instantiate( signalClass );
             injector.mapValue( signalClass, signal );
+            var injectorForSignalInstance:IInjector = injector;
+
+			if(injector.hasMapping(IInjector))
+                injectorForSignalInstance = injector.getInstance(IInjector);
+            signal = injectorForSignalInstance.instantiate( signalClass );
+            injectorForSignalInstance.mapValue( signalClass, signal );
             signalClassMap[signalClass] = signal;
             return signal;
         }
@@ -85,29 +91,21 @@ package org.robotlegs.base
 
         protected function routeSignalToCommand(signal:ISignal, valueObjects:Array, commandClass:Class, oneshot:Boolean):void
         {
-			// NOTE: Assumes no duplicated classes in valueObjects,
-			// and none of them are previously mapped.
-            var value:Object;
-            for each( value in valueObjects )
-            {
-                injector.mapValue( value.constructor, value );
-            }
-
-            var command:Object = injector.instantiate( commandClass );
-
-            for each( value in valueObjects )
-            {
-                injector.unmap( value.constructor );
-            }
-
-            command.execute( );
+            createCommandInstance(signal.valueClasses, valueObjects, commandClass).execute();
 
             if ( oneshot )
-            {
                 unmapSignal( signal, commandClass );
-            }
         }
 
+        protected function createCommandInstance(valueClasses:Array, valueObjects:Array, commandClass:Class):Object
+        {
+			for (var i:uint=0;i<valueClasses.length;i++)
+			{
+				injector.mapValue(valueClasses[i], valueObjects[i]);
+			}
+            return injector.instantiate(commandClass);
+        }
+        
         protected function verifyCommandClass(commandClass:Class):void
         {
             if ( verifiedCommandClasses[commandClass] ) return;

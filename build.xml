@@ -1,0 +1,84 @@
+<project name="signals-extension-SignalsCommandMap" basedir="." default="test">
+
+	<!-- Set up a prefix for all environment variables. -->
+	<property environment="env."/>
+	<fail unless="env.FLEX_HOME" message="FLEX_HOME needs to be defined as an environment variable or in the Ant build." />
+	<!-- Copy Flex SDK location from environment variable. This can be set manually instead. -->
+	<property name="FLEX_HOME" value="${env.FLEX_HOME}" />
+	<property file="build.properties"/>
+    <taskdef resource="flexUnitTasks.tasks" classpath="${lib.loc}/flexUnitTasks.jar"/>
+
+	<target name="compile" description="Compile AS3 code into a SWC">
+		<echo>Using Flex SDK at: ${FLEX_HOME}</echo>
+
+		<java jar="${FLEX_HOME}/lib/compc.jar" dir="." fork="true" failonerror="true">
+			<arg value="+flexlib=${FLEX_HOME}/frameworks" />
+			<arg value="-incremental=true" />
+
+			<arg value="-source-path+=${src.dir}" />
+
+			<!-- Include all classes in this path. -->
+			<arg value="-include-sources=${src.dir}/${package.dir}" />
+
+			<!-- Link in classes from swc library (only those used). -->
+			<arg value="-library-path+=${lib.loc}" />
+
+			<arg value="-output=${output.swc}" />
+		</java>
+
+	</target>
+
+	<target name="clean-asdoc">
+		<delete dir="${docs.dir}" failOnError="false" includeEmptyDirs="true"/>
+		<mkdir dir="${docs.dir}"/>
+	</target>
+
+    <!-- Run Unit Tests -->
+    <target name="test" depends="compile">
+        <echo>[test] Running Unit Tests</echo>
+        <!-- Compile TestRunner.mxml as a SWF -->
+        <java jar="${FLEX_HOME}/lib/mxmlc.jar" dir="${FLEX_HOME}/frameworks" fork="true" failonerror="true">
+            <arg value="${test.src.loc}/SignalCommandMapTest.mxml"/>
+            <arg value="-source-path=${main.src.loc}"/>
+            <!-- Flash those sweet legs. Blink and you'll miss 'em. -->
+            <arg value="-output=${bin.loc}/TestRunner.swf"/>
+            <arg value="-default-size=200,200"/>
+            <arg value="-default-background-color=0x000000"/>
+            <!-- Include classes from SWCs in this folder, but only the ones we use. -->
+            <arg value="-library-path+=${lib.loc}"/>
+            <!-- So true. -->
+            <arg value="-incremental=true"/>
+            <arg value="-verbose-stacktraces=true"/>
+            <arg value="-headless-server=true"/>
+        </java>
+        <!-- Execute TestRunner.swf as FlexUnit tests and publish reports -->
+        <flexunit swf="bin/TestRunner.swf" toDir="${report.loc}" haltonfailure="true" verbose="true" localTrusted="true"/>
+        <!-- Generate readable JUnit-style reports -->
+        <junitreport todir="${report.loc}">
+            <fileset dir="${report.loc}">
+                <include name="TEST-*.xml"/>
+            </fileset>
+            <report format="frames" todir="${report.loc}/html"/>
+        </junitreport>
+        <echo>[test] Finished running Unit Tests</echo>
+    </target>
+
+	<!-- Build Documentation -->
+	<target name="asdoc" depends="compile,clean-asdoc" description="Create API docs for ${project.title}">
+		<echo>Generating ASDOC documentation...</echo>
+		<tstamp>
+			<format property="docgen.time" pattern="MM/dd/yyyy hh:mm aa" unit="hour"/>
+		</tstamp>
+		<java jar="${FLEX_HOME}/lib/asdoc.jar" dir="${FLEX_HOME}/frameworks" fork="true" failonerror="true">
+			<!--<arg line="-external-library-path ${libs.dir}"/>-->
+			<arg line="-doc-sources ${src.dir}/${package.dir}"/>
+			<arg line="-source-path ${src.dir}"/>
+			<arg line="-output ${docs.dir}"/>
+			<arg line="-window-title '${project.title} ${ver.num}'"/>
+			<arg line="-main-title '${project.title} ${ver.num}'"/>
+			<arg line="-footer '${project.title} - Documentation generated at: ${docgen.time}'"/>
+		</java>
+		<echo>ASDOC documentation generated successfully</echo>
+	</target>
+
+</project>
