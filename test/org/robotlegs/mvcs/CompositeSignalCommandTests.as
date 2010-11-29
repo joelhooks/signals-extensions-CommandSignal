@@ -1,13 +1,27 @@
 package org.robotlegs.mvcs
 {
 	import flash.display.Sprite;
+	import flash.events.Event;
+	
+	import mockolate.mock;
+	import mockolate.prepare;
+	import mockolate.strict;
+	import mockolate.verify;
 	
 	import org.flexunit.asserts.assertEquals;
 	import org.flexunit.asserts.assertTrue;
+	import org.flexunit.async.Async;
+	import org.osflash.signals.Signal;
 	import org.osflash.signals.utils.handleSignal;
 	import org.osflash.signals.utils.proceedOnSignal;
+	import org.robotlegs.adapters.SwiftSuspendersInjector;
+	import org.robotlegs.adapters.SwiftSuspendersReflector;
+	import org.robotlegs.base.SignalCommandMap;
 	import org.robotlegs.core.ICompositeSignalCommand;
+	import org.robotlegs.core.IInjector;
+	import org.robotlegs.core.IReflector;
 	import org.robotlegs.core.ISignalCommand;
+	import org.robotlegs.core.ISignalCommandMap;
 	import org.robotlegs.test.support.SignalBusTestClass;
 	import org.robotlegs.test.support.SignalContextWithAccessibleInjector;
 	import org.robotlegs.test.support.TestCommandProperty;
@@ -17,12 +31,10 @@ package org.robotlegs.mvcs
 	import org.robotlegs.test.support.TestDispatchCompletedSignalBusAsyncCommand;
 	import org.robotlegs.test.support.TestDispatchCompletedSignalBusSyncCommand;
 	import org.robotlegs.test.support.TestFailAsyncCommand;
-	import org.robotlegs.test.support.TestValueClassNamedPayloadCommand;
-	import org.robotlegs.test.support.TestValueClassNamedPayloadCompositeCommand;
-	import org.robotlegs.test.support.TestValueClassPayloadCommand;
-	import org.robotlegs.test.support.TestValueClassPayloadCompositeCommand;
-	import org.robotlegs.test.support.TestValuePayloadCommand;
-	import org.robotlegs.test.support.TestValuePayloadCompositeCommand;
+	import org.robotlegs.test.support.TestPayloadCommand;
+	import org.robotlegs.test.support.TestPayloadCompositeCommand;
+	import org.swiftsuspenders.Injector;
+	import org.swiftsuspenders.Reflector;
 
 	public class CompositeSignalCommandTests
 	{		
@@ -32,13 +44,17 @@ package org.robotlegs.mvcs
 		
 		protected var signalBus:SignalBusTestClass;
 		
-		[Before]
+		[Before(async, timeout=5000)]
 		public function setUp():void
 		{
 			context = new SignalContextWithAccessibleInjector(new Sprite());
 			signalBus = new SignalBusTestClass();
 			
 			context.getInjector().mapValue(SignalBusTestClass, signalBus);
+			
+			Async.proceedOnEvent(this,
+				prepare(Signal),
+				Event.COMPLETE);
 		}
 		
 		[After]
@@ -47,6 +63,22 @@ package org.robotlegs.mvcs
 			context = null;
 			command = null;
 			signalBus = null;
+		}
+		
+		protected function createCompositeCommandInstance(commandClass:Class):CompositeSignalCommand
+		{
+			var command:CompositeSignalCommand = new commandClass();
+			
+			command.injector = new SwiftSuspendersInjector()
+			command.reflector = new SwiftSuspendersReflector();
+			command.signalCommandMap = new SignalCommandMap(command.injector);
+			
+			command.injector.mapValue(IInjector, command.injector);
+			command.injector.mapValue(IReflector, command.reflector);
+			command.injector.mapValue(ISignalCommandMap, command.signalCommandMap);
+			command.injector.mapValue(SignalBusTestClass, signalBus);
+			
+			return command;
 		}
 		
 		[Test]
@@ -60,7 +92,7 @@ package org.robotlegs.mvcs
 		[Test]
 		public function numCommmands_matches_number_of_added_child_commands():void
 		{
-			command = context.getInjector().instantiate(CompositeSignalCommand);
+			command = createCompositeCommandInstance(CompositeSignalCommand);
 			
 			command.addCommand(TestCompleteSyncCommand);
 			command.addCommand(TestCompleteSyncCommand);
@@ -71,7 +103,7 @@ package org.robotlegs.mvcs
 		[Test(expects="ArgumentError")]
 		public function command_throws_error_when_adding_a_non_signal_command():void
 		{
-			command = context.getInjector().instantiate(CompositeSignalCommand);
+			command = createCompositeCommandInstance(CompositeSignalCommand);
 			
 			command.addCommand(Command);
 		}
@@ -87,7 +119,7 @@ package org.robotlegs.mvcs
 		[Test(async)]
 		public function command_dispatches_completed_when_all_sync_commands_complete():void
 		{
-			command = context.getInjector().instantiate(CompositeSignalCommand);
+			command = createCompositeCommandInstance(CompositeSignalCommand);
 			
 			command.addCommand(TestCompleteSyncCommand);
 			command.addCommand(TestCompleteSyncCommand);
@@ -101,7 +133,7 @@ package org.robotlegs.mvcs
 		[Test(async)]
 		public function command_dispatches_completed_when_all_async_commands_complete():void
 		{
-			command = context.getInjector().instantiate(CompositeSignalCommand);
+			command = createCompositeCommandInstance(CompositeSignalCommand);
 
 			command.addCommand(TestCompleteAsyncCommand);
 			command.addCommand(TestCompleteAsyncCommand);
@@ -115,46 +147,34 @@ package org.robotlegs.mvcs
 		[Test]
 		public function command_executes_all_sync_commands():void
 		{
-			command = context.getInjector().instantiate(CompositeSignalCommand);
+			command = createCompositeCommandInstance(CompositeSignalCommand);
+			signalBus.commandCompleted = strict(Signal, null, [ISignalCommand]);
 			
 			command.addCommand(TestDispatchCompletedSignalBusSyncCommand);
 			command.addCommand(TestDispatchCompletedSignalBusSyncCommand);
 			command.addCommand(TestDispatchCompletedSignalBusSyncCommand);
 			
-			var numExecutedCommands:int;
-			
-			signalBus.commandCompleted.add(function(childCommand:ISignalCommand):void
-			{
-				numExecutedCommands++;
-			});
-			
-			command.completed.add(function():void
-			{
-				assertEquals(3, numExecutedCommands);
-			});
-			
+			mock(signalBus.commandCompleted).method('dispatch').times(3);
 			command.execute();
+			
+			verify(signalBus.commandCompleted);
 		}
 		
 		[Test(async)]
 		public function command_executes_all_async_commands():void
 		{
-			command = context.getInjector().instantiate(CompositeSignalCommand);
+			command = createCompositeCommandInstance(CompositeSignalCommand);
+			signalBus.commandCompleted = strict(Signal, null, [ISignalCommand]);
 			
 			command.addCommand(TestDispatchCompletedSignalBusAsyncCommand);
 			command.addCommand(TestDispatchCompletedSignalBusAsyncCommand);
 			command.addCommand(TestDispatchCompletedSignalBusAsyncCommand);
 			
-			var numExecutedCommands:int;
-			
-			signalBus.commandCompleted.add(function(childCommand:TestDispatchCompletedSignalBusAsyncCommand):void
-			{
-				numExecutedCommands++;
-			});
+			mock(signalBus.commandCompleted).method('dispatch').times(3);
 
 			handleSignal(this, command.completed, function():void
 			{
-				assertEquals(3, numExecutedCommands);
+				verify(signalBus.commandCompleted);
 			});
 			
 			command.execute();
@@ -163,7 +183,8 @@ package org.robotlegs.mvcs
 		[Test(async)]
 		public function command_executes_all_mixed_commands():void
 		{
-			command = context.getInjector().instantiate(CompositeSignalCommand);
+			command = createCompositeCommandInstance(CompositeSignalCommand);
+			signalBus.commandCompleted = strict(Signal, null, [ISignalCommand]);
 			
 			command.addCommand(TestDispatchCompletedSignalBusAsyncCommand);
 			command.addCommand(TestDispatchCompletedSignalBusSyncCommand);
@@ -171,16 +192,11 @@ package org.robotlegs.mvcs
 			command.addCommand(TestDispatchCompletedSignalBusSyncCommand);
 			command.addCommand(TestDispatchCompletedSignalBusAsyncCommand);
 			
-			var numExecutedCommands:int;
-			
-			signalBus.commandCompleted.add(function(childCommand:*):void
-			{
-				numExecutedCommands++;
-			});
+			mock(signalBus.commandCompleted).method('dispatch').times(5);
 			
 			handleSignal(this, command.completed, function():void
 			{
-				assertEquals(5, numExecutedCommands);
+				verify(signalBus.commandCompleted);
 			});
 			
 			command.execute();
@@ -189,22 +205,18 @@ package org.robotlegs.mvcs
 		[Test(async)]
 		public function command_executes_all_commands_in_nested_composite_commands():void
 		{
-			command = context.getInjector().instantiate(CompositeSignalCommand);
+			command = createCompositeCommandInstance(CompositeSignalCommand);
+			signalBus.commandCompleted = strict(Signal, null, [ISignalCommand]);
 			
 			command.addCommand(TestCompositeCommand);
 			command.addCommand(TestCompositeCommand);
 			command.addCommand(TestCompositeCommand);
 			
-			var numExecutedSubCommands:int;
-			
-			signalBus.commandCompleted.add(function(childCommand:*):void
-			{
-				numExecutedSubCommands++;
-			});
+			mock(signalBus.commandCompleted).method('dispatch').times(9);
 			
 			handleSignal(this, command.completed, function():void
 			{
-				assertEquals(9, numExecutedSubCommands);
+				verify(signalBus.commandCompleted);
 			}, 2000);
 			
 			command.execute();
@@ -213,7 +225,7 @@ package org.robotlegs.mvcs
 		[Test(async)]
 		public function command_dispatches_failed_when_an_async_command_fails():void
 		{
-			command = context.getInjector().instantiate(CompositeSignalCommand);
+			command = createCompositeCommandInstance(CompositeSignalCommand);
 			
 			command.addCommand(TestFailAsyncCommand);
 			
@@ -223,93 +235,14 @@ package org.robotlegs.mvcs
 		}
 		
 		[Test]
-		public function command_instantiates_child_command_with_value_payload():void
+		public function command_instantiates_child_command_with_payload():void
 		{
-			command = context.getInjector().instantiate(TestValuePayloadCompositeCommand);
-			command.addCommand(TestValuePayloadCommand);
+			command = createCompositeCommandInstance(TestPayloadCompositeCommand);
+			command.addCommand(TestPayloadCommand);
 			
-			signalBus.commandCompleted.add(function(childCommand:TestValuePayloadCommand):void
+			signalBus.commandCompleted.add(function(childCommand:TestPayloadCommand):void
 			{
-				assertEquals((command as TestValuePayloadCompositeCommand).property, childCommand.property);
-			});
-			
-			command.execute();
-		}
-		
-		[Test]
-		public function command_instantiates_child_command_with_value_class_payload():void
-		{
-			command = context.getInjector().instantiate(TestValueClassPayloadCompositeCommand);
-			command.addCommand(TestValueClassPayloadCommand);
-			
-			signalBus.commandCompleted.add(function(childCommand:TestValueClassPayloadCommand):void
-			{
-				assertEquals((command as TestValueClassPayloadCompositeCommand).property, childCommand.property);
-			});
-			
-			command.execute();
-		}
-		
-		[Test]
-		public function command_instantiates_child_command_with_value_class_named_payload():void
-		{
-			command = context.getInjector().instantiate(TestValueClassNamedPayloadCompositeCommand);
-			command.addCommand(TestValueClassNamedPayloadCommand);
-			
-			signalBus.commandCompleted.add(function(childCommand:TestValueClassNamedPayloadCommand):void
-			{
-				assertEquals((command as TestValueClassNamedPayloadCompositeCommand).property, childCommand.property);
-			});
-			
-			command.execute();
-		}
-		
-		[Test]
-		public function command_instantiates_child_command_with_value_payload_and_remaps_preexisting_mapped_value():void
-		{
-			var preexistingValue:TestCommandProperty = new TestCommandProperty();
-			context.getInjector().mapValue(TestCommandProperty, preexistingValue);
-			
-			command = context.getInjector().instantiate(TestValuePayloadCompositeCommand);
-			command.addCommand(TestValuePayloadCommand);
-			
-			signalBus.commandCompleted.add(function(childCommand:TestValuePayloadCommand):void
-			{
-				assertEquals(preexistingValue, context.getInjector().getInstance(TestCommandProperty));
-			});
-			
-			command.execute();
-		}
-		
-		[Test]
-		public function command_instantiates_child_command_with_value_class_payload_and_remaps_preexisting_mapped_value():void
-		{
-			var preexistingValue:TestCommandProperty = new TestCommandProperty();
-			context.getInjector().mapValue(TestCommandProperty, preexistingValue);
-			
-			command = context.getInjector().instantiate(TestValueClassPayloadCompositeCommand);
-			command.addCommand(TestValueClassPayloadCommand);
-			
-			signalBus.commandCompleted.add(function(childCommand:TestValueClassPayloadCommand):void
-			{
-				assertEquals(preexistingValue, context.getInjector().getInstance(TestCommandProperty));
-			});
-			
-			command.execute();
-		}
-		
-		[Test]
-		public function command_instantiates_child_command_with_value_class_named_payload_and_remaps_preexisting_mapped_value():void
-		{
-			var preexistingValue:TestCommandProperty = new TestCommandProperty();
-			context.getInjector().mapValue(TestCommandProperty, preexistingValue, "TestCommandProperty");
-			
-			command = context.getInjector().instantiate(TestValueClassPayloadCompositeCommand);
-			command.addCommand(TestValueClassPayloadCommand);
-			
-			signalBus.commandCompleted.add(function(childCommand:TestValueClassPayloadCommand):void
-			{
-				assertEquals(preexistingValue, context.getInjector().getInstance(TestCommandProperty, "TestCommandProperty"));
+				assertEquals((command as TestPayloadCompositeCommand).property, childCommand.property);
 			});
 			
 			command.execute();

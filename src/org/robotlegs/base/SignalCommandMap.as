@@ -91,19 +91,32 @@ package org.robotlegs.base
 
         protected function routeSignalToCommand(signal:ISignal, valueObjects:Array, commandClass:Class, oneshot:Boolean):void
         {
-            createCommandInstance(signal.valueClasses, valueObjects, commandClass).execute();
+            createCommandInstance(commandClass, signal.valueClasses, valueObjects).execute();
 
             if ( oneshot )
                 unmapSignal( signal, commandClass );
         }
 
-        protected function createCommandInstance(valueClasses:Array, valueObjects:Array, commandClass:Class):Object
+        public function createCommandInstance(commandClass:Class, payloadClassList:Array = null, payloadValueList:Array = null):*
         {
-			for (var i:uint=0;i<valueClasses.length;i++)
+			var commandInjector:IInjector;
+			
+			if (payloadClassList && payloadClassList.length > 0)
 			{
-				injector.mapValue(valueClasses[i], valueObjects[i]);
+				commandInjector = injector.createChild(injector.applicationDomain);
+				var m:uint = payloadClassList.length;
+				
+				for (var i:uint = 0; i < m; i++)
+				{
+					commandInjector.mapValue(payloadClassList[i], payloadValueList[i]);
+				}
 			}
-            return injector.instantiate(commandClass);
+			else
+			{
+				commandInjector = injector;
+			}
+			
+            return commandInjector.instantiate(commandClass);
         }
         
         protected function verifyCommandClass(commandClass:Class):void

@@ -214,5 +214,35 @@ package org.robotlegs.base
 
 			assertTrue(prop.wasExecuted);
 		}
+		
+		[Test]
+		public function command_instance_created_with_no_payload():void
+		{
+			var command:TestNoPropertiesCommand = signalCommandMap.createCommandInstance(TestNoPropertiesCommand);
+			
+			assertTrue(command is TestNoPropertiesCommand);
+		}
+		
+		[Test]
+		public function command_instance_created_with_payload():void
+		{
+			var command:TestOnePropertyCommand = signalCommandMap.createCommandInstance(TestOnePropertyCommand, 
+				[TestCommandProperty], [new TestCommandProperty()]);
+			
+			assertTrue(command is TestOnePropertyCommand);
+		}
+		
+		[Test]
+		public function payload_injected_upon_creating_command_instance():void
+		{
+			var propOne:TestCommandProperty = new TestCommandProperty();
+			var propTwo:TestCommandProperty2 = new TestCommandProperty2();
+			
+			var command:TestTwoPropertyCommand = signalCommandMap.createCommandInstance(TestTwoPropertyCommand, 
+				[TestCommandProperty, TestCommandProperty2], [propOne, propTwo]);
+			
+			assertEquals(propOne, command.propOne);
+			assertEquals(propTwo, command.propTwo);
+		}
     }
 }

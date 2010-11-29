@@ -52,47 +52,11 @@ package org.robotlegs.mvcs
 			executeNextCommand();
 		}
 
-		protected function instantiateCommand(commandClass:Class, payload:Object = null, payloadClass:Class = null, payloadNamed:String = ""):ISignalCommand
+		protected function instantiateCommand(commandClass:Class, payloadClassList:Array = null, payloadValueList:Array = null):ISignalCommand
 		{
 			// You can override this method in case the child commands require a payload.
 
-			// I considered moving this implementation to a more accessible class,
-			// but will keep it here until a common use-case arises.
-
-			var preservedMappedValue:Object;
-
-			if (payload != null)
-			{
-				payloadClass ||= reflector.getClass(payload);
-
-				// Though highly unlikely since payload classes aren't typically mapped,
-				// preserve any previously mapped classes of the payload's type
-				if (injector.hasMapping(payloadClass, payloadNamed))
-				{
-					// In case the mapped class hasn't been instantiated yet,
-					// instantiate it so the preserved mapped value isn't remapped as null.
-					preservedMappedValue = injector.getInstance(payloadClass, payloadNamed) || injector.instantiate(payloadClass);
-
-					injector.unmap(payloadClass, payloadNamed);
-				}
-				
-				injector.mapValue(payloadClass, payload, payloadNamed);
-			}
-
-			var command:ISignalCommand = injector.instantiate(commandClass);
-
-			if (payload != null)
-			{
-				injector.unmap(payloadClass, payloadNamed);
-
-				// Remap the preserved mapped value.
-				if (preservedMappedValue != null)
-				{
-					injector.mapValue(payloadClass, preservedMappedValue, payloadNamed);
-				}
-			}
-
-			return command;
+			return signalCommandMap.createCommandInstance(commandClass, payloadClassList, payloadValueList);
 		}
 
 		protected function executeNextCommand():void
@@ -103,17 +67,11 @@ package org.robotlegs.mvcs
 
 				if (command is IAsyncSignalCommand)
 				{
-					var asyncCommand:IAsyncSignalCommand = command as IAsyncSignalCommand;
-
-					asyncCommand.completed.add(commandCompletedHandler);
-					asyncCommand.failed.add(commandFailedHandler);
-
-					command.execute();
+					executeAsyncCommand(command as IAsyncSignalCommand);
 				}
 				else if (command is ISignalCommand)
 				{
-					command.execute();
-					executeNextCommand();
+					executeSyncCommand(command);
 				}
 			}
 			else
@@ -121,7 +79,28 @@ package org.robotlegs.mvcs
 				dispatchComplete();
 			}
 		}
-
+		
+		protected function executeSyncCommand(command:ISignalCommand):void
+		{
+			command.execute();
+			executeNextCommand();
+		}
+		
+		protected function executeAsyncCommand(command:IAsyncSignalCommand):void
+		{
+			command.completed.add(commandCompletedHandler);
+			command.failed.add(commandFailedHandler);
+			
+			command.execute();
+		}
+		
+		override protected function release():void
+		{
+			super.release();
+			
+			commandList.length = 0;
+		}
+		
 		protected function commandCompletedHandler():void
 		{
 			executeNextCommand();
@@ -129,15 +108,6 @@ package org.robotlegs.mvcs
 
 		protected function commandFailedHandler(error:*):void
 		{
-			// Fail completely if one command fails.
-			
-			// It might be useful to add a property indicating whether
-			// to continue if a child command fails.
-			// Also, non-async signal commands have no way of indicating
-			// failure, so if one does, the composite command will continue.
-
-			commandList.length = 0;
-
 			dispatchFail(error);
 		}
 	}

@@ -5,6 +5,6 @@ package org.robotlegs.test.support
 
 	public class SignalBusTestClass
 	{
-		public const commandCompleted:Signal = new Signal(ISignalCommand);
+		public var commandCompleted:Signal = new Signal(ISignalCommand);
 	}
 }

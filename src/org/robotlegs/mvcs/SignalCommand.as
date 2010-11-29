@@ -9,7 +9,6 @@ package org.robotlegs.mvcs
 		
 		public function SignalCommand()
 		{
-
 		}
 		
 		public function get signalCommandMap():ISignalCommandMap

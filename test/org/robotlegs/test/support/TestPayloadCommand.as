@@ -2,15 +2,15 @@ package org.robotlegs.test.support
 {
 	import org.robotlegs.mvcs.SignalCommand;
 	
-	public class TestValueClassNamedPayloadCommand extends SignalCommand
+	public class TestPayloadCommand extends SignalCommand
 	{
 		[Inject]
 		public var signalBus:SignalBusTestClass;
 		
-		[Inject(name="TestCommandProperty")]
+		[Inject]
 		public var property:TestCommandProperty;
 		
-		public function TestValueClassNamedPayloadCommand()
+		public function TestPayloadCommand()
 		{
 		}
 		

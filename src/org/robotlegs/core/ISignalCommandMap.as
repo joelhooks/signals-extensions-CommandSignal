@@ -14,6 +14,8 @@ package org.robotlegs.core
 		
         function unmapSignalClass(signalClass:Class, commandClass:Class):void;
 		
+		function createCommandInstance(commandClass:Class, payloadClassList:Array = null, payloadValueList:Array = null):*;
+		
 		function detain(command:ISignalCommand):void;
 		
 		function release(command:ISignalCommand):void;
