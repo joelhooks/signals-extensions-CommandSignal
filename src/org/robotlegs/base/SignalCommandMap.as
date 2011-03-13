@@ -44,7 +44,7 @@ package org.robotlegs.base
             return signal;
         }
 
-        private function getSignalClassInstance(signalClass:Class):ISignal
+        protected function getSignalClassInstance(signalClass:Class):ISignal
         {
             return ISignal(signalClassMap[signalClass]) || createSignalClassInstance(signalClass);
         }
@@ -86,21 +86,30 @@ package org.robotlegs.base
 
         protected function routeSignalToCommand(signal:ISignal, valueObjects:Array, commandClass:Class, oneshot:Boolean):void
         {
-            createCommandInstance(signal.valueClasses, valueObjects, commandClass).execute();
+            mapSignalValues( signal.valueClasses, valueObjects );
+            createCommandInstance( commandClass).execute();
 
             if ( oneshot )
                 unmapSignal( signal, commandClass );
         }
 
-        protected function createCommandInstance(valueClasses:Array, valueObjects:Array, commandClass:Class):Object
-        {
-			for (var i:uint=0;i<valueClasses.length;i++)
-			{
-				injector.mapValue(valueClasses[i], valueObjects[i]);
-			}
+        protected function createCommandInstance(commandClass:Class):Object {
             return injector.instantiate(commandClass);
         }
-        
+
+        protected function mapSignalValues(valueClasses:Array, valueObjects:Array):void {
+            for (var i:uint = 0; i < valueClasses.length; i++) {
+                injector.mapValue(valueClasses[i], valueObjects[i]);
+            }
+
+        }
+
+        protected function unmapSignalValues(valueClasses:Array, valueObjects:Array):void {
+            for (var i:uint = 0; i < valueClasses.length; i++) {
+                injector.unmap(valueClasses[i], valueObjects[i]);
+            }
+        }
+
         protected function verifyCommandClass(commandClass:Class):void
         {
             if ( verifiedCommandClasses[commandClass] ) return;
