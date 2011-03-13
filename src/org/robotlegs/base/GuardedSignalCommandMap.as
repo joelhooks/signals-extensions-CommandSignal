@@ -29,7 +29,7 @@ public class GuardedSignalCommandMap extends SignalCommandMap implements IGuarde
             guards = [guards];
         }
 
-        verifyCommandClass(commandClass);
+        verifyGuardClasses(guards);
 
         if (hasSignalCommand(signal, commandClass))
             return;
@@ -44,7 +44,7 @@ public class GuardedSignalCommandMap extends SignalCommandMap implements IGuarde
         signal.add(callback);
     }
 
-     public function mapGuardedSignalClass(signalClass:Class, commandClass:Class, guards:*, oneShot:Boolean = false):ISignal {
+    public function mapGuardedSignalClass(signalClass:Class, commandClass:Class, guards:*, oneShot:Boolean = false):ISignal {
         var signal:ISignal = getSignalClassInstance(signalClass);
         mapGuardedSignal(signal, commandClass, guards, oneShot);
         return signal;
@@ -53,7 +53,6 @@ public class GuardedSignalCommandMap extends SignalCommandMap implements IGuarde
     protected function routeSignalToGuardedCommand(signal:ISignal, valueObjects:Array, commandClass:Class, oneshot:Boolean, guardClasses:Array):void
     {
 
-        trace("mapping signal values");
 		mapSignalValues(signal.valueClasses, valueObjects);
 
         var guardClass:Class;
@@ -62,14 +61,12 @@ public class GuardedSignalCommandMap extends SignalCommandMap implements IGuarde
             guardClass = guardClasses[i];
             var nextGuard:Object = injector.instantiate(guardClass);
             if (! nextGuard.approve()) {
-                trace("unmapping signal values");
 		        unmapSignalValues(signal.valueClasses, valueObjects);
                 return;
             }
         }
 
         var command:Object = injector.instantiate(commandClass);
-        trace("unmapping signal values");
         unmapSignalValues(signal.valueClasses, valueObjects);
         command.execute();
 
@@ -85,6 +82,7 @@ public class GuardedSignalCommandMap extends SignalCommandMap implements IGuarde
             guardClass = guardClasses[i];
             if (!verifiedGuardClasses[guardClass]) {
                 verifiedGuardClasses[guardClass] = describeType(guardClass).factory.method.(@name == "approve").length();
+
                 if (!verifiedGuardClasses[guardClass])
                     throw new ContextError(E_GUARD_NOIMPL + ' - ' + guardClass);
             }

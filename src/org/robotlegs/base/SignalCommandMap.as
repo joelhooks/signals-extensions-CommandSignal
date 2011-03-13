@@ -88,7 +88,7 @@ package org.robotlegs.base
         {
             mapSignalValues( signal.valueClasses, valueObjects );
             createCommandInstance( commandClass).execute();
-
+            unmapSignalValues( signal.valueClasses, valueObjects );
             if ( oneshot )
                 unmapSignal( signal, commandClass );
         }
@@ -101,12 +101,11 @@ package org.robotlegs.base
             for (var i:uint = 0; i < valueClasses.length; i++) {
                 injector.mapValue(valueClasses[i], valueObjects[i]);
             }
-
         }
 
         protected function unmapSignalValues(valueClasses:Array, valueObjects:Array):void {
             for (var i:uint = 0; i < valueClasses.length; i++) {
-                injector.unmap(valueClasses[i], valueObjects[i]);
+                injector.unmap(valueClasses[i]);
             }
         }
 

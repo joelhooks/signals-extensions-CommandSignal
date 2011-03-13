@@ -7,7 +7,8 @@ package org.robotlegs.base
     import org.robotlegs.adapters.SwiftSuspendersInjector;
     import org.robotlegs.core.IInjector;
     import org.robotlegs.core.ISignalCommandMap;
-    import org.robotlegs.test.support.*;
+    import org.robotlegs.test.support.*; 
+	import org.swiftsuspenders.InjectorError;
 
     public class SignalCommandMapTests
     {
@@ -215,8 +216,8 @@ package org.robotlegs.base
 			assertTrue(prop.wasExecuted);
 		} 
 		
-		[Test]
-		public function signal_values_persist_from_one_to_the_next():void
+		[Test(expects="org.swiftsuspenders.InjectorError")]
+		public function signal_values_no_longer_persist_from_one_to_the_next():void
 		{
 			var propOne:TestCommandProperty = new TestCommandProperty();
             var propTwo:TestCommandProperty2 = new TestCommandProperty2();  
@@ -229,25 +230,7 @@ package org.robotlegs.base
 			secondPropSignal.dispatch(propTwo);
 			
             assertTrue(propOne.wasExecuted && propTwo.wasExecuted); 
-
-			// need to decide whether this behaviour is correct
-            assertTrue(false);
-		}
+        }
 		
-		[Test]
-		public function signal_values_persist_from_one_to_the_next_but_reversing_dispatch_order_causes_error():void
-		{
-			var propOne:TestCommandProperty = new TestCommandProperty();
-            var propTwo:TestCommandProperty2 = new TestCommandProperty2();  
-            signalCommandMap.mapSignal(onePropSignal, TestOnePropertyCommand);
-
-			var secondPropSignal:TestCommandProperty2Signal = new TestCommandProperty2Signal();
-            signalCommandMap.mapSignal(secondPropSignal, TestTwoPropertyConstructorCommand);
-
-			secondPropSignal.dispatch(propTwo);
-            onePropSignal.dispatch(propOne);
-			
-            assertTrue(propOne.wasExecuted && propTwo.wasExecuted); 
-		}
     }
 }
