@@ -22,7 +22,9 @@ public class GuardedSignalCommandMap extends SignalCommandMap implements IGuarde
     // IGuardedCommandMap Implementation
     //---------------------------------------
 
-    //import org.robotlegs.core.IGuardedCommandMap;
+    /**
+     * @inheritDoc
+    */
     public function mapGuardedSignal(signal:ISignal, commandClass:Class, guards:*, oneShot:Boolean = false):void {
         verifyCommandClass(commandClass);
 
@@ -45,6 +47,9 @@ public class GuardedSignalCommandMap extends SignalCommandMap implements IGuarde
         signal.add(callback);
     }
 
+    /**
+     * @inheritDoc
+    */
      public function mapGuardedSignalClass(signalClass:Class, commandClass:Class, guards:*, oneShot:Boolean = false):ISignal {
         var signal:ISignal = getSignalClassInstance(signalClass);
         mapGuardedSignal(signal, commandClass, guards, oneShot);
