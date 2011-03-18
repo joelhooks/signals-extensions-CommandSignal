@@ -23,6 +23,14 @@ public class GuardedSignalCommandMap extends SignalCommandMap implements IGuarde
 
     //import org.robotlegs.core.IGuardedCommandMap;
     public function mapGuardedSignal(signal:ISignal, commandClass:Class, guards:*, oneShot:Boolean = false):void {
+        mapGuardedSignalWithFallback(signal, commandClass, null, guards, oneShot);
+    }
+
+    public function mapGuardedSignalClass(signalClass:Class, commandClass:Class, guards:*, oneShot:Boolean = false):ISignal {
+		return mapGuardedSignalClassWithFallback(signalClass, commandClass, null, guards, oneShot);
+    }
+    
+    public function mapGuardedSignalWithFallback(signal:ISignal, commandClass:Class, fallbackCommandClass:Class, guards:*, oneShot:Boolean = false):void {
         verifyCommandClass(commandClass);
 
         if (!(guards is Array)) {
@@ -37,36 +45,41 @@ public class GuardedSignalCommandMap extends SignalCommandMap implements IGuarde
         var signalCommandMap:Dictionary = signalMap[signal] = signalMap[signal] || new Dictionary(false);
 
         var callback:Function = function(a:* = null, b:* = null, c:* = null, d:* = null, e:* = null, f:* = null, g:* = null):void {
-            routeSignalToGuardedCommand(signal, arguments, commandClass, oneShot, guards);
+            routeSignalToGuardedCommand(signal, arguments, commandClass, fallbackCommandClass, oneShot, guards);
         };
 
         signalCommandMap[commandClass] = callback;
         signal.add(callback);
     }
 
-    public function mapGuardedSignalClass(signalClass:Class, commandClass:Class, guards:*, oneShot:Boolean = false):ISignal {
+    public function mapGuardedSignalClassWithFallback(signalClass:Class, commandClass:Class, fallbackCommandClass:Class, guards:*, oneShot:Boolean = false):ISignal {
         var signal:ISignal = getSignalClassInstance(signalClass);
-        mapGuardedSignal(signal, commandClass, guards, oneShot);
+        mapGuardedSignalWithFallback(signal, commandClass, fallbackCommandClass, guards, oneShot);
         return signal;
     }
 
-    protected function routeSignalToGuardedCommand(signal:ISignal, valueObjects:Array, commandClass:Class, oneshot:Boolean, guardClasses:Array):void
+
+    protected function routeSignalToGuardedCommand(signal:ISignal, valueObjects:Array, commandClass:Class, fallbackCommandClass:Class, oneshot:Boolean, guardClasses:Array):void
     {
 
 		mapSignalValues(signal.valueClasses, valueObjects);
 
-        var guardClass:Class;
+        var approved:Boolean = true;
+		var guardClass:Class;
         var iLength:uint = guardClasses.length;
         for (var i:int = 0; i < iLength; i++) {
             guardClass = guardClasses[i];
             var nextGuard:Object = injector.instantiate(guardClass);
-            if (! nextGuard.approve()) {
+            approved = (approved && nextGuard.approve());
+			if ((!approved) && (fallbackCommandClass == null)) {
 		        unmapSignalValues(signal.valueClasses, valueObjects);
                 return;
             }
         }
+        
+		var commandToInstantiate:Class = approved ? commandClass : fallbackCommandClass;
 
-        var command:Object = injector.instantiate(commandClass);
+        var command:Object = injector.instantiate(commandToInstantiate);
         unmapSignalValues(signal.valueClasses, valueObjects);
         command.execute();
 
