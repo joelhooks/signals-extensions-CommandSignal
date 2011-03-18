@@ -162,6 +162,40 @@ package org.robotlegs.base
 			var signal:ISignal = guardedCommandMap.mapGuardedSignalClass(Signal, SampleCommandA, guard);
 			Signal(signal).dispatch();
 			assertThat(_reportedCommands, array(SampleCommandA));
-		}		
+		}
+		
+		[Test]
+		public function mapping_signal_class_with_fallback_executes_first_choice_if_guard_approves():void {             
+			var guard:Class = HappyGuard;
+			var signal:ISignal = guardedCommandMap.mapGuardedSignalClassWithFallback(Signal, SampleCommandA, SampleCommandB, guard);
+			Signal(signal).dispatch();
+			assertThat(_reportedCommands, array(SampleCommandA));
+		} 
+		
+		[Test]
+		public function mapping_signal_class_with_fallback_executes_fallback_if_guard_disapproves():void {             
+			var guard:Class = GrumpyGuard;
+			var signal:ISignal = guardedCommandMap.mapGuardedSignalClassWithFallback(Signal, SampleCommandA, SampleCommandB, guard);
+			Signal(signal).dispatch();
+			assertThat(_reportedCommands, array(SampleCommandB));
+		}
+		
+		[Test]
+		public function mapping_with_fallback_executes_first_choice_if_guard_approves():void {             
+			var guard:Class = HappyGuard;
+			var signal:Signal = new Signal();
+			guardedCommandMap.mapGuardedSignalWithFallback(signal, SampleCommandA, SampleCommandB, guard);
+			signal.dispatch();
+			assertThat(_reportedCommands, array(SampleCommandA));
+		} 
+		
+		[Test]
+		public function mapping_with_fallback_executes_fallback_if_guard_disapproves():void {             
+			var guard:Class = GrumpyGuard;
+			var signal:Signal = new Signal();
+			guardedCommandMap.mapGuardedSignalWithFallback(signal, SampleCommandA, SampleCommandB, guard);
+			signal.dispatch();
+			assertThat(_reportedCommands, array(SampleCommandB));
+		}   	
     }
 }
