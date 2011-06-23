@@ -13,6 +13,7 @@ package org.robotlegs.base
         protected var signalMap:Dictionary;
         protected var signalClassMap:Dictionary;
         protected var verifiedCommandClasses:Dictionary;
+        protected var detainedCommands:Dictionary;
 
         public function SignalCommandMap(injector:IInjector)
         {
@@ -20,6 +21,7 @@ package org.robotlegs.base
             signalMap = new Dictionary( false );
             signalClassMap = new Dictionary( false );
             verifiedCommandClasses = new Dictionary( false );
+            detainedCommands = new Dictionary( false );
         }
 
         public function mapSignal(signal:ISignal, commandClass:Class, oneShot:Boolean = false):void
@@ -119,5 +121,15 @@ package org.robotlegs.base
 			verifiedCommandClasses[commandClass] = true;
         }
 		
+        public function detain(command:Object):void
+        {
+            detainedCommands[command] = true;
+        }
+
+        public function release(command:Object):void
+        {
+            if (detainedCommands[command])
+                delete detainedCommands[command];
+        }
     }
 }
