@@ -1,11 +1,18 @@
 <project name="signals-extension-SignalsCommandMap" basedir="." default="test">
 
+	<property file="build.properties"/>
 	<!-- Set up a prefix for all environment variables. -->
 	<property environment="env."/>
-	<fail unless="env.FLEX_HOME" message="FLEX_HOME needs to be defined as an environment variable or in the Ant build." />
 	<!-- Copy Flex SDK location from environment variable. This can be set manually instead. -->
-	<property name="FLEX_HOME" value="${env.FLEX_HOME}" />
-	<property file="build.properties"/>
+	<condition property="FLEX_HOME" value="${env.FLEX_HOME}">
+		<and>
+			<not>
+				<isset property="FLEX_HOME"/>
+			</not>
+			<isset property="env.FLEX_HOME"/>
+		</and>
+	</condition>
+	<fail unless="FLEX_HOME" message="FLEX_HOME needs to be defined as an environment variable or in the Ant build." />
     <taskdef resource="flexUnitTasks.tasks" classpath="${lib.loc}/flexUnitTasks-4.1.0-RC1.x.jar"/>
 
 	<target name="compile" description="Compile AS3 code into a SWC">
