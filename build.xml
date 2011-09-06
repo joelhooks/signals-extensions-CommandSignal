@@ -43,6 +43,7 @@
     <!-- Run Unit Tests -->
     <target name="test" depends="compile">
         <echo>[test] Running Unit Tests</echo>
+		<mkdir dir="${report.loc}"/>
         <!-- Compile test runner as a SWF -->
         <java jar="${FLEX_HOME}/lib/mxmlc.jar" dir="${FLEX_HOME}/frameworks" fork="true" failonerror="true">
             <arg value="${test.src.loc}/SignalCommandMapTest.as"/>
