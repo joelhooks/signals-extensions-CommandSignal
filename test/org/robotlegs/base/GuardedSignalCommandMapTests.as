@@ -110,7 +110,7 @@ package org.robotlegs.base
 			guardedCommandMap.mapGuardedSignal(signal, SampleCommandB, GrumpyGuard);
 			guardedCommandMap.mapGuardedSignal(signal, SampleCommandC, [HappyGuard, InjectedGuard]);
 			signal.dispatch();       
-			assertThat(_reportedCommands, array(SampleCommandA, SampleCommandC));
+			assertThat(_reportedCommands, array(SampleCommandC, SampleCommandA));
 		}
 		
 		[Test(expected="org.robotlegs.base.ContextError")]
@@ -132,7 +132,7 @@ package org.robotlegs.base
 			guardedCommandMap.mapGuardedSignal(signal, SampleCommandB, ContraryGuard);
 			guardedCommandMap.mapGuardedSignal(signal, SampleCommandC, CooperativeGuard);
 			signal.dispatch(true);
-			assertThat(_reportedCommands, array(SampleCommandA, SampleCommandC));
+			assertThat(_reportedCommands, array(SampleCommandC, SampleCommandA));
 		}
 		
 		[Test]

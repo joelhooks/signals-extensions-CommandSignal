@@ -42,9 +42,10 @@ public class GuardedSignalCommandMap extends SignalCommandMap implements IGuarde
         if (hasSignalCommand(signal, commandClass))
             return;
 
-        var signalCommandMap:Dictionary = signalMap[signal] = signalMap[signal] || new Dictionary(false);
+        const signalCommandMap:Dictionary = signalMap[signal] = signalMap[signal] || new Dictionary(false);
 
-        var callback:Function = function(a:* = null, b:* = null, c:* = null, d:* = null, e:* = null, f:* = null, g:* = null):void {
+        const callback:Function = function():void 
+		{
             routeSignalToGuardedCommand(signal, arguments, commandClass, fallbackCommandClass, oneShot, guards);
         };
 
