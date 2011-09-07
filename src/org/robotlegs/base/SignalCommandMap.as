@@ -29,8 +29,8 @@ package org.robotlegs.base
             verifyCommandClass( commandClass );
             if ( hasSignalCommand( signal, commandClass ) )
                 return;
-            var signalCommandMap:Dictionary = signalMap[signal] ||= new Dictionary( false );
-            var callback:Function = function(a:* = null, b:* = null, c:* = null, d:* = null, e:* = null, f:* = null, g:* = null):void
+            const signalCommandMap:Dictionary = signalMap[signal] ||= new Dictionary( false );
+            const callback:Function = function():void
             {
                 routeSignalToCommand( signal, arguments, commandClass, oneShot );
             };
